@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import ChatSidebarContainer from './ChatSidebarContainer'
 
 export default function Chat() {
   return (
@@ -9,7 +8,6 @@ export default function Chat() {
           <h1 className='text-6xl font-bold text-white mb-8 font-mono tracking-wider'>
             AI Chat
           </h1>
-					<ChatSidebarContainer />
         </div>
       </div>
     </div>
