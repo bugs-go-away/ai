@@ -35,11 +35,9 @@ export default function ChatSidebarContainer() {
     </Box>
   );
 
-
-
 	return (
 		<div>
-			<Button onClick={toggleSidebar(true)}>Open drawer</Button>
+			<Button onClick={toggleSidebar(true)}>Click Me</Button>
 			<Drawer open={open} onClose={toggleSidebar(false)}>
         {DrawerList}
       </Drawer>
