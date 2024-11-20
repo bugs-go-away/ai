@@ -1,8 +1,18 @@
 import React from 'react';
-import Chat from './components/Chat';
+import ChatContainer from './components/ChatContainer';
+import ResponsiveAppBar from './components/AppBar';
+import SplashPage from './components/SplashPage';
 
 function App() {
-  return <Chat />;
+  return (
+    <>
+      <SplashPage />
+      <ResponsiveAppBar />
+      <ChatContainer />
+    </>
+  );
 }
 
 export default App;
+
+// <ChatSidebarContainer />
