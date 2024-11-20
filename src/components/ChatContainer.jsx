@@ -2,10 +2,30 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Send } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
+const TypingIndicator = () => (
+  <div className='flex items-end space-x-2 justify-start'>
+    <div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
+      <div className='flex space-x-1'>
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
+            style={{
+              animationDelay: `${i * 0.2}s`,
+              animationDuration: '1s',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 export default function ChatContainer() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [username] = useState('user');
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = useCallback(() => {
@@ -14,7 +34,7 @@ export default function ChatContainer() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages, scrollToBottom, isTyping]);
 
   const sendMessageToServer = async (messageData) => {
     try {
@@ -57,6 +77,7 @@ export default function ChatContainer() {
       // Optimistically update UI
       setMessages((prev) => [...prev, newMessage]);
       setInputMessage('');
+      setIsTyping(true);
 
       // Send message to server
       const messageData = {
@@ -66,6 +87,7 @@ export default function ChatContainer() {
       };
 
       const response = await sendMessageToServer(messageData);
+      setIsTyping(false);
 
       if (!response) {
         // Remove the failed message from UI
@@ -75,7 +97,7 @@ export default function ChatContainer() {
         setMessages((prev) => [
           ...prev,
           {
-            id: response.id || Date.now(), // Use server-provided ID if available
+            id: response.id || Date.now(),
             text: response.message,
             sender: 'server',
             timestamp: response.timestamp,
@@ -130,6 +152,7 @@ export default function ChatContainer() {
               </div>
             </div>
           ))}
+          {isTyping && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
 
