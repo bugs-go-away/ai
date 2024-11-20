@@ -119,11 +119,8 @@ export default function ChatContainer() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex flex-col items-center justify-center p-4'>
-      <Toaster />
+			<Toaster />
       <div className='text-center mb-8 animate-fade-in'>
-        <h1 className='text-4xl font-bold bg-gradient-to-r from-slate-600 to-slate-800 inline-block text-transparent bg-clip-text'>
-          Social Skills Builder
-        </h1>
       </div>
 
       <div className='bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-4xl shadow-lg flex flex-col h-[600px] border border-slate-200 dark:border-slate-700'>
