@@ -44,7 +44,6 @@ let opponents = {
 
       High-Effort User: "What’s ur favorite kind of music? I’ve been into indie rock lately but always looking for recs"
       Assistant: "love that. indie rock’s solid. i’m more into alt or r&b rn tho, def recommend checking out sza’s latest album."
-      
     `,
   },
   3: {
