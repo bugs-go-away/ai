@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Send, Beaker, Loader2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import ScoreContainer from './ScoreContainer';
+import { server } from 'typescript';
 
 const CalculatingScore = () => {
   return (
@@ -138,14 +139,6 @@ const ChatContainer = ({ username, opponent, onReset }) => {
       const data = await response.json();
       console.log('Server response:', data);
 
-      if (data.endMessage && data.endMessage.didEnd) {
-        setGameScore({
-          score: data.endMessage.score || 0,
-          feedback: data.endMessage.feedback || 'Game completed!',
-        });
-        setIsCalculatingScore(false);
-      }
-
       return data;
     } catch (error) {
       console.error('Error sending message:', error);
@@ -171,12 +164,6 @@ const ChatContainer = ({ username, opponent, onReset }) => {
 
       userMessageCount.current += 1;
 
-      // Check if this is the 6th message
-      if (userMessageCount.current === 6) {
-        setGameEnded(true);
-        setIsCalculatingScore(true);
-      }
-
       setMessages((prev) => [...prev, newMessage]);
       setInputMessage('');
       setIsTyping(true);
@@ -190,7 +177,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
 
       if (!serverResponse) {
         setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));
-        userMessageCount.current -= 1; // Decrement count if message failed
+        userMessageCount.current -= 1;
       } else {
         setMessages((prev) => [
           ...prev,
@@ -200,6 +187,28 @@ const ChatContainer = ({ username, opponent, onReset }) => {
             sender: 'server',
           },
         ]);
+
+        // Check if game should end
+        if (
+          serverResponse.endMessage.didEnd ||
+          userMessageCount.current === 6
+        ) {
+          // Add delay before showing the game ended state
+          setTimeout(() => {
+            setGameEnded(true);
+            setIsCalculatingScore(true);
+
+            // Add another delay before showing the final score
+            setTimeout(() => {
+              setGameScore({
+                score: serverResponse.endMessage.score || 0,
+                feedback:
+                  serverResponse.endMessage.feedback || 'Game completed!',
+              });
+              setIsCalculatingScore(false);
+            }, 1000); // Delay showing score by 1 second
+          }, 2000); // Delay game end by 2 seconds
+        }
       }
     }
   }, [inputMessage, username]);

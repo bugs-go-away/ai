@@ -143,7 +143,10 @@ export const receiveAIMessage = async (req, res, next) => {
     });
 
     res.locals.aiMessage = completion.choices[0].message;
-    let breakoutResults = await checkBreakout(completion.choices[0].message.content, opponentId);
+    let breakoutResults = await checkBreakout(
+      completion.choices[0].message.content,
+      opponentId
+    );
     res.locals.breakoutInfo = breakoutResults.breakoutInfo;
     res.locals.aiMessage.content = breakoutResults.newAiMessage;
     return next();
@@ -171,5 +174,8 @@ async function checkBreakout(aiMessage, opponentId) {
     }
     strAiMessage = strAiMessage.replace(brf.textMatch, '');
   });
-  return { breakoutInfo: { didEnd: trippedEnd, scoreMod: totalMod }, newAiMessage: strAiMessage };
+  return {
+    breakoutInfo: { didEnd: trippedEnd, scoreMod: totalMod },
+    newAiMessage: strAiMessage,
+  };
 }
