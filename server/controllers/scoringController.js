@@ -28,12 +28,15 @@ export const scoreConversation = async (req, res, next) => {
         {
           role: 'system',
           content: `${scorePrompt}
-          This was the conversation, you should be ranking 'user' ${finalChatState}`,
+          This was the conversation, you should be ranking 'user''s performance ${finalChatState}
+          Only share your rank out of ten, using whole numbers.`,
         },
 
         { role: 'user', content: `${newestMessage}` },
       ],
     });
+    console.log(completion.choices[0].message.content);
+    return next();
   } catch (error) {
     return next({
       log: `error querying openai for score.`,
