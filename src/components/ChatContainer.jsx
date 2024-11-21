@@ -3,24 +3,64 @@ import { Send, Beaker } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import ScoreContainer from './ScoreContainer';
 
-const TypingIndicator = () => (
-	<div className='flex items-end space-x-2 justify-start'>
-		<div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
-			<div className='flex space-x-1'>
-				{[...Array(3)].map((_, i) => (
-					<div
-						key={i}
-						className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
-						style={{
-							animationDelay: `${i * 0.2}s`,
-							animationDuration: '1s',
-						}}
-					/>
-				))}
-			</div>
-		</div>
-	</div>
+const TypingIndicator = ({ opponent }) => (
+  <div className='flex items-end space-x-2 justify-start'>
+    <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
+      <img
+        src={opponent?.profileImage || `/api/placeholder/32/32`}
+        alt={opponent?.name}
+        className='w-full h-full object-cover'
+      />
+    </div>
+    <div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
+      <div className='flex space-x-1'>
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
+            style={{
+              animationDelay: `${i * 0.2}s`,
+              animationDuration: '1s',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
 );
+
+const Message = ({ message, opponent }) => {
+  const isUser = message.sender === 'user';
+
+  return (
+    <div
+      className={`flex items-end space-x-2 ${
+        isUser ? 'justify-end' : 'justify-start'
+      }`}
+    >
+      {!isUser && (
+        <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
+          <img
+            src={opponent?.profileImage || `/api/placeholder/32/32`}
+            alt={opponent?.name}
+            className='w-full h-full object-cover'
+          />
+        </div>
+      )}
+      <div
+        className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${
+          isUser
+            ? 'bg-blue-600 text-white rounded-br-none'
+            : message.sender === 'system'
+            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
+        }`}
+      >
+        <p className='text-sm leading-relaxed'>{message.text}</p>
+      </div>
+    </div>
+  );
+};
 
 const ChatContainer = ({ username, opponent, onReset }) => {
   const [messages, setMessages] = useState([]);
@@ -28,20 +68,17 @@ const ChatContainer = ({ username, opponent, onReset }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [gameEnded, setGameEnded] = useState(false);
   const [gameScore, setGameScore] = useState({ score: 0, feedback: '' });
+  const [isTestMode, setIsTestMode] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Add test mode state
-  const [isTestMode, setIsTestMode] = useState(false);
-
-	const scrollToBottom = useCallback(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	}, []);
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom, isTyping]);
 
-  // Test function to simulate different scores
   const testScore = (score) => {
     setGameEnded(true);
     setGameScore({
@@ -56,27 +93,26 @@ const ChatContainer = ({ username, opponent, onReset }) => {
     });
   };
 
-	const sendMessageToServer = async (messageData) => {
-		try {
-			const response = await fetch(
-				`http://localhost:3000/chat/message?username=${username}`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(messageData),
-				}
-			);
+  const sendMessageToServer = async (messageData) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/chat/message?username=${username}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messageData),
+        }
+      );
 
-			if (!response.ok) {
-				throw new Error('Failed to send message');
-			}
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
 
       const data = await response.json();
       console.log('Server response:', data);
 
-      // Check if game has ended
       if (data.endMessage && data.endMessage.didEnd) {
         setGameEnded(true);
         setGameScore({
@@ -100,13 +136,13 @@ const ChatContainer = ({ username, opponent, onReset }) => {
     }
   };
 
-	const handleSendMessage = useCallback(async () => {
-		if (inputMessage.trim()) {
-			const newMessage = {
-				id: Date.now(),
-				text: inputMessage,
-				sender: 'user',
-			};
+  const handleSendMessage = useCallback(async () => {
+    if (inputMessage.trim()) {
+      const newMessage = {
+        id: Date.now(),
+        text: inputMessage,
+        sender: 'user',
+      };
 
       setMessages((prev) => [...prev, newMessage]);
       setInputMessage('');
@@ -116,8 +152,8 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         newMessage: inputMessage,
       };
 
-			const serverResponse = await sendMessageToServer(messageData);
-			setIsTyping(false);
+      const serverResponse = await sendMessageToServer(messageData);
+      setIsTyping(false);
 
       if (!serverResponse) {
         setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));
@@ -144,7 +180,6 @@ const ChatContainer = ({ username, opponent, onReset }) => {
     [handleSendMessage]
   );
 
-  // Reset game function
   const resetGame = () => {
     setGameEnded(false);
     setGameScore({ score: 0, feedback: '' });
@@ -163,7 +198,6 @@ const ChatContainer = ({ username, opponent, onReset }) => {
           </h2>
         )}
 
-        {/* Test Mode Toggle */}
         <button
           onClick={() => setIsTestMode(!isTestMode)}
           className='mt-2 inline-flex items-center gap-2 px-3 py-1 text-sm bg-slate-200 dark:bg-slate-700 rounded-full hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors'
@@ -173,7 +207,6 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         </button>
       </div>
 
-      {/* Test Controls */}
       {isTestMode && (
         <div className='mb-4 p-4 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700'>
           <div className='flex gap-2 flex-wrap'>
@@ -226,26 +259,9 @@ const ChatContainer = ({ username, opponent, onReset }) => {
           }}
         >
           {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-end space-x-2 ${
-                message.sender === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${
-                  message.sender === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : message.sender === 'system'
-                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
-                }`}
-              >
-                <p className='text-sm leading-relaxed'>{message.text}</p>
-              </div>
-            </div>
+            <Message key={message.id} message={message} opponent={opponent} />
           ))}
-          {isTyping && <TypingIndicator />}
+          {isTyping && <TypingIndicator opponent={opponent} />}
           <div ref={messagesEndRef} />
         </div>
 
