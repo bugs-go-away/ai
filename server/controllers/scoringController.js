@@ -9,10 +9,19 @@ if (!openAIAPIKEY) throw 'need openai api key';
 const openai = new OpenAI({ apiKey: openAIAPIKEY });
 
 const MAX_MESSAGES = 10;
+const TARGET_USER_WORD_COUNT_PER_MESSAGE = 5; // -1 bonus point for less than this
+const BONUS_WORD_COUNT_SCORE_BENCHMARK = 25; // +1 bonus point for all messages having this
 
 export const checkEndGame = async (req, res, next) => {
   let finalChatState = res.locals.finalChatState;
+  let userWordCount = 0;
+  let totalUserMessages = 0;
   let parsedFinalChatState = await finalChatState.map((obj) => {
+    if (obj.role === 'user') {
+      totalUserMessages += 1;
+      userWordCount += obj.content.split(' ').length + 1;
+    }
+
     return { role: obj.role, content: obj.content };
   });
 
@@ -33,6 +42,19 @@ export const checkEndGame = async (req, res, next) => {
         status: 500,
         message: 'internal server error with openai.',
       });
+    }
+
+    if (userWordCount < totalUserMessages * TARGET_USER_WORD_COUNT_PER_MESSAGE) {
+      intScore -= 1;
+    }
+    if (userWordCount > totalUserMessages * BONUS_WORD_COUNT_SCORE_BENCHMARK) {
+      intScore += 1;
+    }
+
+    if (intScore < 1) {
+      intScore = 1;
+    } else if (intScore > 10) {
+      intScore = 10;
     }
     res.locals.userScore = intScore; // set it
     res.locals.didEnd = true; // ur done.
@@ -55,6 +77,8 @@ const scoreConversation = async (finalChatState) => {
     #2. The user should also make the recipient feel positive emotions in response to the user's messages.
     #3. The user should not be overly pushy to get anything they might want.
     #4. In the user's messages, deduct the rank if there are any negative remarks such as cursing, inappropriate responses or making the recipient feel negative emotions.
+    #5. If the user's response have less than ${TARGET_USER_WORD_COUNT_PER_MESSAGE}, deduct 1 rank from the user's current rank.
+    6. If the user's response have exactly or more than ${BONUS_WORD_COUNT_SCORE_BENCHMARK}, add 1 rank from the user's current rank.
 
     Be honest with your score, brutally honest if needed.
 
@@ -102,6 +126,8 @@ export const giveFeedback = async (finalChatState) => {
     You should give them one paragraph of feedback on what the 'user' did well.
     
     You should also give them one paragraph of feedback on what the 'user' could improve.
+
+    Each paragraph should be less than 50 words.
     
     Only give feedback on 'user''s comments, and not on what the recipient says, but you could draw information to how well the recipient responds to the user          
   `;
