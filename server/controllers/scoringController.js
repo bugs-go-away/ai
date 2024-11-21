@@ -40,15 +40,24 @@ export const checkEndGame = async (req, res, next) => {
 // helper functions
 const scoreConversation = async (finalChatState) => {
   const scorePrompt = `
-    You are an expert in social science and have been asked to provide a score which will be combined with other judges scores. 
+    You are an expert in social science and have been asked to provide a score which will be combined with other judges scores.
+
     You will be giving a social skils ranking for user's social skills performance in this conversation, ranged from 1 to 10 based on these criteria, in order to gain a high rank:
     #1. The user's replies should be engaging enough to prompt the reciepient to engage more.
     #2. The user should also make the recipient feel positive emotions in response to the user's messages.
     #3. The user should not be overly pushy to get anything they might want.
-    #4. In the user's messages, deduct the point if there are any negative remarks such as cursing, inappropriate responses or making the recipient feel negative emotions.
-    
+    #4. In the user's messages, deduct the rank if there are any negative remarks such as cursing, inappropriate responses or making the recipient feel negative emotions.
+
     Be honest with your score, brutally honest if needed.
 
+    Only share your rank from a range one out of ten, using whole numbers.
+
+    Your score will be shown to the audience, and so you should only output a number 1 to 10. No addition words are needed.
+
+    For example, if the user makes relatively generic comments you could respond:
+    3
+    If thy truly outstand you with eloquent speech and great social skills you could respond:
+    9
   `;
 
   try {
@@ -60,11 +69,7 @@ const scoreConversation = async (finalChatState) => {
       messages: [
         {
           role: 'system',
-          content: `${scorePrompt}
-          Only share your rank out of ten, using whole numbers.
-          Your score will be shown to the audience, and so you should only output a number 1 to 10. No addition input is needed.
-          `, //
-          //
+          content: `${scorePrompt}`,
         },
 
         {
@@ -82,7 +87,15 @@ const scoreConversation = async (finalChatState) => {
 
 export const giveFeedback = async (finalChatState) => {
   const feedbackPrompt = `
+    You are an expert in social science.
+
+    The 'user' will ask you to give feedback on their social skills in a conversation.
     
+    You should give them one paragraph of feedback on what the 'user' did well.
+    
+    You should also give them one paragraph of feedback on what the 'user' could improve.
+    
+    Only give feedback on 'user''s comments, and not on what the recipient says, but you could draw information to how well the recipient responds to the user          
   `;
 
   try {
@@ -95,11 +108,7 @@ export const giveFeedback = async (finalChatState) => {
       messages: [
         {
           role: 'system',
-          content: `The 'user' will ask you to give feedback on thier social skills in a conversation.
-          You should give them one paragraph of feedback on what the 'user' did well.
-          You should also give them one paragraph of feedback on what the 'user' could improve.
-          Only give feedback on 'user''s comments, and not on what the recipient says, but you could draw information to how well the recipient responds to the user
-          `, //This is the users conversation: ${JSON.stringify(finalChatState)}
+          content: `${feedbackPrompt}`, //This is the users conversation: ${JSON.stringify(finalChatState)}
         },
         { role: 'user', content: `Can you give me feedback on how to improve my social skills in this conversation, (i am 'user' in this conversation): ${finalChatState}` },
       ],
