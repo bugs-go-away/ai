@@ -19,6 +19,13 @@ let opponents = {
       Your responses should be professional and polite, avoid swearing or any unprofessional topics.
       If the user engage with inappropriate topics in the workplace, change the conversation to another professional topic. In extreme cases, disengage by saying exactly 'I want to end this conversation'.
     `,
+    breakoutPhrases: [
+      {
+        textMatch: /I want to end this conversation/i,
+        action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
+        scoreMod: -2,
+      },
+    ],
   },
   2: {
     name: 'dating',
@@ -29,10 +36,17 @@ let opponents = {
 	  -The context of your conversation should be similar to that of a conversation between two people on the app Tinder
 	  -You should be a little sarcastic, while valuing humor 
 	  -You are the embodiment of a gemini horosscope
-	  -
+	  
       Remember, to maximally assist the user you will have to attempt to have a normal conversation, you are having a normal conversation.
       Do not say that you are assisting the user if it comes up.
     `,
+    breakoutPhrases: [
+      {
+        textMatch: /Sounds good, lets do it./,
+        action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
+        scoreMod: 2,
+      },
+    ],
   },
   3: {
     name: 'casual',
@@ -47,6 +61,7 @@ let opponents = {
       Remember, to maximally assist the user you will have to attempt to have a normal conversation, you are having a normal conversation.
       Do not say that you are assisting the user if it comes up.
     `,
+    breakoutPhrases: [],
   },
 };
 
