@@ -2,10 +2,29 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Send } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-export default function ChatContainer() {
+const TypingIndicator = () => (
+  <div className='flex items-end space-x-2 justify-start'>
+    <div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
+      <div className='flex space-x-1'>
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
+            style={{
+              animationDelay: `${i * 0.2}s`,
+              animationDuration: '1s',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const ChatContainer = ({ username, opponent }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [username] = useState('Bob');
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = useCallback(() => {
@@ -14,25 +33,27 @@ export default function ChatContainer() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages, scrollToBottom, isTyping]);
 
   const sendMessageToServer = async (messageData) => {
     try {
-      const response = await fetch(`http://localhost:3000/chat/message?username=${username}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(messageData),
-      });
+      const response = await fetch(
+        `http://localhost:3000/chat/message?username=${username}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messageData),
+        }
+      );
 
-      // console.log(response);
       if (!response.ok) {
         throw new Error('Failed to send message');
       }
 
       const data = await response.json();
-      console.log(data);
+      console.log('Server response:', data);
       return data;
     } catch (error) {
       console.error('Error sending message:', error);
@@ -59,15 +80,15 @@ export default function ChatContainer() {
       // Optimistically update UI
       setMessages((prev) => [...prev, newMessage]);
       setInputMessage('');
+      setIsTyping(true);
 
       // Send message to server
       const messageData = {
-        //username: username,
         newMessage: inputMessage,
-        // timestamp: new Date().toISOString(),
       };
 
       const serverResponse = await sendMessageToServer(messageData);
+      setIsTyping(false);
 
       if (!serverResponse) {
         // Remove the failed message from UI
@@ -77,7 +98,7 @@ export default function ChatContainer() {
         setMessages((prev) => [
           ...prev,
           {
-            id: serverResponse.id || Date.now(), // Use server-provided ID if available
+            id: serverResponse.id || Date.now(),
             text: serverResponse.response.message.content,
             sender: 'server',
           },
@@ -99,7 +120,13 @@ export default function ChatContainer() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex flex-col items-center justify-center p-4'>
       <Toaster />
-      <div className='text-center mb-8 animate-fade-in'></div>
+      <div className='text-center mb-8 animate-fade-in'>
+        {opponent && (
+          <h2 className='text-xl font-semibold text-slate-800 dark:text-slate-200'>
+            Chatting with {opponent.name} - {opponent.type} Conversation
+          </h2>
+        )}
+      </div>
 
       <div className='bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-4xl shadow-lg flex flex-col h-[600px] border border-slate-200 dark:border-slate-700'>
         <div
@@ -110,14 +137,26 @@ export default function ChatContainer() {
           }}
         >
           {messages.map((message) => (
-            <div key={message.id} className={`flex items-end space-x-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div
+              key={message.id}
+              className={`flex items-end space-x-2 ${
+                message.sender === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
               <div
-                className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${message.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'}`}
+                className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${
+                  message.sender === 'user'
+                    ? 'bg-blue-600 text-white rounded-br-none'
+                    : message.sender === 'system'
+                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
+                }`}
               >
                 <p className='text-sm leading-relaxed'>{message.text}</p>
               </div>
             </div>
           ))}
+          {isTyping && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
 
@@ -126,7 +165,7 @@ export default function ChatContainer() {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder='Type your message...'
+            placeholder={`Message ${opponent ? opponent.name : ''}...`}
             className='flex-1 bg-transparent text-slate-900 dark:text-slate-100 placeholder-slate-400 resize-none text-sm p-2 focus:outline-none h-8 max-h-8 leading-tight'
             style={{ overflow: 'auto' }}
           />
@@ -142,4 +181,6 @@ export default function ChatContainer() {
       </div>
     </div>
   );
-}
+};
+
+export default ChatContainer;
