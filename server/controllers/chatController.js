@@ -42,7 +42,7 @@ let opponents = {
     breakoutPhrases: [
       {
         textMatch: /Sounds good, lets do it./,
-        action: 'end', // end, $log -> dosent end the conversation but does add the bonus penalty.
+        action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
         scoreMod: 2,
       },
     ],
