@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,14 +8,13 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import ChatSidebarContainer from './ChatSidebarContainer';
 
 const settings = ['Profile', 'Score', 'Logout'];
 
-function ResponsiveAppBar() {
+function ResponsiveAppBar({ selectedPerson }) {
 
   const [anchorElUser, setAnchorElUser] = useState(null);
 	const [openSidebar, setOpenSidebar] = useState(false);
@@ -100,7 +99,7 @@ function ResponsiveAppBar() {
       </Container>
     </AppBar>
 
-		<ChatSidebarContainer open={openSidebar} toggleSidebar={toggleSidebar}/>
+		<ChatSidebarContainer open={openSidebar} toggleSidebar={toggleSidebar} person={selectedPerson}/>
 		</>
   );
 }
