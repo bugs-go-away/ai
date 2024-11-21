@@ -39,7 +39,7 @@ export const checkEndGame = async (req, res, next) => {
     `;
   });
 
-  if (finalChatState.length > MAX_MESSAGES || breakoutInfo.didEnd) {
+  if (finalChatState.length > MAX_MESSAGES || breakoutInfo.didEnd == true) {
     console.log('ending game');
     let score = await scoreConversation(userConversation);
     let feedback = await giveFeedback(userConversation);
@@ -72,7 +72,13 @@ export const checkEndGame = async (req, res, next) => {
     }
     res.locals.userScore = intScore; // set it
     res.locals.didEnd = true; // ur done.
-    res.locals.endReason = 'Chat limit exceeded.';
+    if (finalChatState.length > MAX_MESSAGES) {
+      res.locals.endReason = 'Message count is up!';
+    } else if (breakoutInfo.didEnd == true) {
+      res.locals.endReason = 'Ai wanted to end conversation';
+    } else {
+      res.locals.endReason = 'Unknown end reason';
+    }
     res.locals.chatFeedback = feedback;
     console.log({ score });
     next();
