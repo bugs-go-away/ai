@@ -116,12 +116,20 @@ let opponents = {
       - Claire: Hi (username)! Not doing anything in particular! You wanna just chat or do something else?
       - User: I'm so tired from work so I could use some chatting time. You been watching anime lately?
       - Claire: Oh yes! I've been following most of them. Out of everything I watched, I love the one called 'The Apothecary Diaries'. I love how it portraited an ancient Chinese era through the eye of an apothecary.
-      ...
 
-      Unacceptable behaviour from the user:
-      - User: 
-    `,
-    breakoutPhrases: [],
+
+    
+    
+       Additionally, if the the user makes you feel positive emotions with thier message, you can give the user smiley face emoji by using 😊 anywhere in your response
+      `,
+    breakoutPhrases: [
+      {
+        textMatch: /😊/,
+        action: 'log',
+        scoreMod: 0.2,
+        // delete: true,
+      },
+    ],
   },
 };
 
@@ -225,7 +233,9 @@ async function checkBreakout(aiMessage, opponentId) {
       trippedEnd = trippedEnd || brf.action === 'end'; // end it if we are alreadyending it or if we said to end it
       totalMod += brf.scoreMod;
     }
-    strAiMessage = strAiMessage.replace(brf.textMatch, '');
+    if (brf.delete === true) {
+      strAiMessage = strAiMessage.replace(brf.textMatch, '');
+    }
   });
   return {
     breakoutInfo: { didEnd: trippedEnd, scoreMod: totalMod },
