@@ -10,13 +10,13 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 
-export default function ChatSidebarContainer({ open, toggleSidebar }) {
+export default function ChatSidebarContainer() {
 
-	// const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(false);
 
-	// const toggleSidebar = (newOpen) => () => {
-  //   setOpen(newOpen);
-  // };
+	const toggleSidebar = (newOpen) => () => {
+    setOpen(newOpen);
+  };
 
 	const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={toggleSidebar(false)}>
@@ -37,7 +37,7 @@ export default function ChatSidebarContainer({ open, toggleSidebar }) {
 
 	return (
 		<div>
-			{/* <Button onClick={toggleSidebar(true)}>Click Me</Button> */}
+			<Button onClick={toggleSidebar(true)}>Click Me</Button>
 			<Drawer open={open} onClose={toggleSidebar(false)}>
         {DrawerList}
       </Drawer>
