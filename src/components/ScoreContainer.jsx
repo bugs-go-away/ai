@@ -67,8 +67,8 @@ const ScoreContainer = ({ score, feedback, onNewConversation }) => {
           </div>
 
           <div className='flex flex-col md:flex-row gap-8'>
-            {/* Score Card */}
-            <div className='md:w-1/3'>
+            {/* Score Card and Button Column */}
+            <div className='md:w-1/3 flex flex-col gap-4'>
               <div
                 className={`relative rounded-2xl ${bgColor} ${borderColor} border backdrop-blur-sm overflow-hidden`}
               >
@@ -95,6 +95,14 @@ const ScoreContainer = ({ score, feedback, onNewConversation }) => {
                   </div>
                 </div>
               </div>
+
+              <button
+                onClick={onNewConversation}
+                className='group w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20 transition-all duration-200 flex items-center justify-center gap-2 font-medium'
+              >
+                Start New Conversation
+                <ArrowRight className='w-4 h-4 transform transition-transform group-hover:translate-x-1' />
+              </button>
             </div>
 
             {/* Feedback Section */}
@@ -104,23 +112,12 @@ const ScoreContainer = ({ score, feedback, onNewConversation }) => {
                   <h3 className='text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3'>
                     Feedback
                   </h3>
-                  <p className='text-slate-600 dark:text-slate-400 leading-relaxed'>
+                  <p className='text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap'>
                     {feedback}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Action Button */}
-          <div className='mt-8 flex justify-center'>
-            <button
-              onClick={onNewConversation}
-              className='group px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20 transition-all duration-200 flex items-center gap-2 font-medium'
-            >
-              Start New Conversation
-              <ArrowRight className='w-4 h-4 transform transition-transform group-hover:translate-x-1' />
-            </button>
           </div>
         </div>
       </div>

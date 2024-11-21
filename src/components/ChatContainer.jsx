@@ -1,88 +1,149 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Send, Beaker } from 'lucide-react';
+import { Send, Beaker, Loader2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import ScoreContainer from './ScoreContainer';
 
-const TypingIndicator = () => (
-	<div className='flex items-end space-x-2 justify-start'>
-		<div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
-			<div className='flex space-x-1'>
-				{[...Array(3)].map((_, i) => (
-					<div
-						key={i}
-						className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
-						style={{
-							animationDelay: `${i * 0.2}s`,
-							animationDuration: '1s',
-						}}
-					/>
-				))}
-			</div>
-		</div>
-	</div>
+const CalculatingScore = () => {
+  return (
+    <div className='bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 rounded-3xl p-8 max-w-md w-full mx-4'>
+      <div className='flex flex-col items-center gap-4'>
+        <div className='relative'>
+          <div className='absolute inset-0 bg-blue-500/20 animate-ping rounded-full' />
+          <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />
+        </div>
+        <h2 className='text-2xl font-bold text-slate-800 dark:text-slate-200'>
+          Calculating Score
+        </h2>
+        <p className='text-slate-600 dark:text-slate-400 text-center'>
+          Analyzing your conversation and preparing feedback...
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const TypingIndicator = ({ opponent }) => (
+  <div className='flex items-end space-x-2 justify-start'>
+    <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
+      <img
+        src={opponent?.profileImage || `/default.png`}
+        alt={opponent?.name}
+        className='w-full h-full object-cover'
+      />
+    </div>
+    <div className='rounded-2xl px-4 py-3 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
+      <div className='flex space-x-1 items-center min-h-[1.25rem]'>
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
+            style={{
+              animationDelay: `${i * 0.2}s`,
+              animationDuration: '1s',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
 );
+
+const Message = ({ message, opponent }) => {
+  const isUser = message.sender === 'user';
+
+  return (
+    <div
+      className={`flex items-end space-x-2 ${
+        isUser ? 'justify-end' : 'justify-start'
+      }`}
+    >
+      {!isUser && (
+        <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
+          <img
+            src={opponent?.profileImage || `/default.png`}
+            alt={opponent?.name}
+            className='w-full h-full object-cover'
+          />
+        </div>
+      )}
+      <div
+        className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${
+          isUser
+            ? 'bg-blue-600 text-white rounded-br-none'
+            : message.sender === 'system'
+            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
+        }`}
+      >
+        <p className='text-sm leading-relaxed'>{message.text}</p>
+      </div>
+    </div>
+  );
+};
 
 const ChatContainer = ({ username, opponent, onReset }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [gameEnded, setGameEnded] = useState(false);
+  const [isCalculatingScore, setIsCalculatingScore] = useState(false);
   const [gameScore, setGameScore] = useState({ score: 0, feedback: '' });
-  const messagesEndRef = useRef(null);
-
-  // Add test mode state
   const [isTestMode, setIsTestMode] = useState(false);
+  const messagesEndRef = useRef(null);
+  const userMessageCount = useRef(0);
 
-	const scrollToBottom = useCallback(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	}, []);
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom, isTyping]);
 
-  // Test function to simulate different scores
   const testScore = (score) => {
     setGameEnded(true);
-    setGameScore({
-      score: score,
-      feedback: `This is a test feedback message for score ${score}. ${
-        score >= 8
-          ? 'Excellent work!'
-          : score >= 6
-          ? 'Good effort!'
-          : 'Keep practicing!'
-      } This is additional feedback text to test how longer feedback messages appear in the scoring overlay.`,
-    });
+    setIsCalculatingScore(true);
+    setTimeout(() => {
+      setGameScore({
+        score: score,
+        feedback: `This is a test feedback message for score ${score}. ${
+          score >= 8
+            ? 'Excellent work!'
+            : score >= 6
+            ? 'Good effort!'
+            : 'Keep practicing!'
+        } This is additional feedback text to test how longer feedback messages appear in the scoring overlay.`,
+      });
+      setIsCalculatingScore(false);
+    }, 1500);
   };
 
-	const sendMessageToServer = async (messageData) => {
-		try {
-			const response = await fetch(
-				`http://localhost:3000/chat/message?username=${username}`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(messageData),
-				}
-			);
+  const sendMessageToServer = async (messageData) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/chat/message?username=${username}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messageData),
+        }
+      );
 
-			if (!response.ok) {
-				throw new Error('Failed to send message');
-			}
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
 
       const data = await response.json();
       console.log('Server response:', data);
 
-      // Check if game has ended
       if (data.endMessage && data.endMessage.didEnd) {
-        setGameEnded(true);
         setGameScore({
           score: data.endMessage.score || 0,
           feedback: data.endMessage.feedback || 'Game completed!',
         });
+        setIsCalculatingScore(false);
       }
 
       return data;
@@ -100,13 +161,21 @@ const ChatContainer = ({ username, opponent, onReset }) => {
     }
   };
 
-	const handleSendMessage = useCallback(async () => {
-		if (inputMessage.trim()) {
-			const newMessage = {
-				id: Date.now(),
-				text: inputMessage,
-				sender: 'user',
-			};
+  const handleSendMessage = useCallback(async () => {
+    if (inputMessage.trim()) {
+      const newMessage = {
+        id: Date.now(),
+        text: inputMessage,
+        sender: 'user',
+      };
+
+      userMessageCount.current += 1;
+
+      // Check if this is the 6th message
+      if (userMessageCount.current === 6) {
+        setGameEnded(true);
+        setIsCalculatingScore(true);
+      }
 
       setMessages((prev) => [...prev, newMessage]);
       setInputMessage('');
@@ -116,11 +185,12 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         newMessage: inputMessage,
       };
 
-			const serverResponse = await sendMessageToServer(messageData);
-			setIsTyping(false);
+      const serverResponse = await sendMessageToServer(messageData);
+      setIsTyping(false);
 
       if (!serverResponse) {
         setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));
+        userMessageCount.current -= 1; // Decrement count if message failed
       } else {
         setMessages((prev) => [
           ...prev,
@@ -144,13 +214,14 @@ const ChatContainer = ({ username, opponent, onReset }) => {
     [handleSendMessage]
   );
 
-  // Reset game function
   const resetGame = () => {
     setGameEnded(false);
+    setIsCalculatingScore(false);
     setGameScore({ score: 0, feedback: '' });
     setMessages([]);
     setInputMessage('');
     setIsTyping(false);
+    userMessageCount.current = 0;
   };
 
   return (
@@ -163,7 +234,6 @@ const ChatContainer = ({ username, opponent, onReset }) => {
           </h2>
         )}
 
-        {/* Test Mode Toggle */}
         <button
           onClick={() => setIsTestMode(!isTestMode)}
           className='mt-2 inline-flex items-center gap-2 px-3 py-1 text-sm bg-slate-200 dark:bg-slate-700 rounded-full hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors'
@@ -173,7 +243,6 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         </button>
       </div>
 
-      {/* Test Controls */}
       {isTestMode && (
         <div className='mb-4 p-4 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700'>
           <div className='flex gap-2 flex-wrap'>
@@ -208,13 +277,17 @@ const ChatContainer = ({ username, opponent, onReset }) => {
       <div className='relative bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-4xl shadow-lg flex flex-col h-[600px] border border-slate-200 dark:border-slate-700'>
         {gameEnded && (
           <div className='absolute inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl'>
-            <div className='w-full max-w-3xl mx-4'>
-              <ScoreContainer
-                score={gameScore.score}
-                feedback={gameScore.feedback}
-                onNewConversation={onReset}
-              />
-            </div>
+            {isCalculatingScore ? (
+              <CalculatingScore />
+            ) : (
+              <div className='w-full max-w-3xl mx-4'>
+                <ScoreContainer
+                  score={gameScore.score}
+                  feedback={gameScore.feedback}
+                  onNewConversation={onReset}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -226,26 +299,9 @@ const ChatContainer = ({ username, opponent, onReset }) => {
           }}
         >
           {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-end space-x-2 ${
-                message.sender === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${
-                  message.sender === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : message.sender === 'system'
-                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
-                }`}
-              >
-                <p className='text-sm leading-relaxed'>{message.text}</p>
-              </div>
-            </div>
+            <Message key={message.id} message={message} opponent={opponent} />
           ))}
-          {isTyping && <TypingIndicator />}
+          {isTyping && <TypingIndicator opponent={opponent} />}
           <div ref={messagesEndRef} />
         </div>
 
