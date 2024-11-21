@@ -17,7 +17,7 @@ const Schema = mongoose.Schema;
 const chatSchema = new Schema({
   username: String,
   password: String,
-  createdAt: { type: Date, expires: 300, default: Date.now() },
+  createdAt: { type: Date, expires: 600, default: Date.now() },
   opponentId: Number,
   conversation: [{ role: String, content: String }],
 });
