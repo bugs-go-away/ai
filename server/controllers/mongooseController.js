@@ -15,7 +15,7 @@ export const createChat = async (req, res, next) => {
   let message = await Chat.create({
     username: username,
     password: '1234',
-    start_time: Date.now(),
+    //  start_time: Date.now(),
     opponentId: opponentId,
   });
   console.log(` ok, started user sesh and got ${message}`);
