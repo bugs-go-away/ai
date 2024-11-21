@@ -67,6 +67,9 @@ export const checkEndGame = async (req, res, next) => {
   }
 };
 
+// #5. If the user's response have less than ${TARGET_USER_WORD_COUNT_PER_MESSAGE}, deduct 1 rank from the user's current rank.
+// 6. If the user's response have exactly or more than ${BONUS_WORD_COUNT_SCORE_BENCHMARK}, add 1 rank from the user's current rank.
+
 // helper functions
 const scoreConversation = async (finalChatState) => {
   const scorePrompt = `
@@ -77,8 +80,7 @@ const scoreConversation = async (finalChatState) => {
     #2. The user should also make the recipient feel positive emotions in response to the user's messages.
     #3. The user should not be overly pushy to get anything they might want.
     #4. In the user's messages, deduct the rank if there are any negative remarks such as cursing, inappropriate responses or making the recipient feel negative emotions.
-    #5. If the user's response have less than ${TARGET_USER_WORD_COUNT_PER_MESSAGE}, deduct 1 rank from the user's current rank.
-    6. If the user's response have exactly or more than ${BONUS_WORD_COUNT_SCORE_BENCHMARK}, add 1 rank from the user's current rank.
+
 
     Be honest with your score, brutally honest if needed.
 
