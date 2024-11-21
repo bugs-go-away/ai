@@ -8,7 +8,7 @@ if (!openAIAPIKEY) throw 'need openai api key';
 
 const openai = new OpenAI({ apiKey: openAIAPIKEY });
 
-const MAX_MESSAGES = 6;
+const MAX_MESSAGES = 10;
 
 export const checkEndGame = async (req, res, next) => {
   let finalChatState = res.locals.finalChatState;
@@ -26,7 +26,15 @@ export const checkEndGame = async (req, res, next) => {
     console.log('ending game');
     let score = await scoreConversation(userConversation);
     let feedback = await giveFeedback(userConversation);
-    res.locals.userScore = score; // set it
+    let intScore = Number(score);
+    if (!intScore || intScore === NaN) {
+      return next({
+        log: 'error, ai did not return a number for score',
+        status: 500,
+        message: 'internal server error with openai.',
+      });
+    }
+    res.locals.userScore = intScore; // set it
     res.locals.didEnd = true; // ur done.
     res.locals.endReason = 'Chat limit exceeded.';
     res.locals.chatFeedback = feedback;
