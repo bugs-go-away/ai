@@ -8,14 +8,31 @@ if (!openAIAPIKEY) throw 'need openai api key';
 
 const openai = new OpenAI({ apiKey: openAIAPIKEY });
 
-export const scoreConversation = async (req, res, next) => {
+const MAX_MESSAGES = 6;
+
+export const checkEndGame = async (req, res, next) => {
   let finalChatState = res.locals.finalChatState;
+  if (finalChatState.length > MAX_MESSAGES) {
+    console.log('ending game');
+    let score = await scoreConversation(finalChatState);
+    res.locals.userScore = score; // set it
+    res.locals.didEnd = true; // ur done.
+    console.log({ score });
+    next();
+  } else {
+    return next();
+  }
+};
+
+// helper functions
+const scoreConversation = async (finalChatState) => {
+  console.log(`scoring... this nonsense ... ${finalChatState}`);
   const scorePrompt = `
-    You are an expert in social science.
+    You are an expert in social science and have been asked to provide a score which will be combined with other judges scores. 
     You will be giving a social skils ranking for user's social skills performance in this conversation, ranged from 1 to 10 based on these criteria, in order to gain a high rank:
     #1. The user's replies should be engaging to prompt the oppon  
-    #2. you can also alter your ranking based on how well the recipient responds to the user's interaction.
-    #3. the user should also make the recipient feel positive emotions in response to the user's messages.
+    #2. The user should also make the recipient feel positive emotions in response to the user's messages.
+    #3. The user should not be overly pushy to get anything they might want.
   `;
 
   try {
@@ -28,21 +45,18 @@ export const scoreConversation = async (req, res, next) => {
         {
           role: 'system',
           content: `${scorePrompt}
-          This was the conversation, you should be ranking 'user''s performance ${finalChatState}
-          Only share your rank out of ten, using whole numbers.`,
+          Only share your rank out of ten, using whole numbers.
+          Your score will be shown to the audience, and so you should only output a number 1 to 10.`,
         },
 
-        { role: 'user', content: `${newestMessage}` },
+        { role: 'user', content: `A person, 'user' had this final performance, can you provide a score 1 to 10 for how well user did according to the criteria? ${finalChatState}` },
       ],
     });
     console.log(completion.choices[0].message.content);
-    return next();
+    //res.locals.userScore = completion.choices[0].message.content;
+    return completion.choices[0].message.content;
   } catch (error) {
-    return next({
-      log: `error querying openai for score.`,
-      status: 500,
-      message: { err: 'error calculating score... you must be too good.' },
-    });
+    throw `err${error}`;
   }
 };
 
