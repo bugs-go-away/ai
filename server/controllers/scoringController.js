@@ -16,6 +16,9 @@ export const checkEndGame = async (req, res, next) => {
   let finalChatState = res.locals.finalChatState;
   let breakoutInfo = res.locals.breakoutInfo;
   let currentScoreMod = res.locals.currentScoreMod;
+  if (!currentScoreMod) {
+    currentScoreMod = 0;
+  }
   if (!breakoutInfo) {
     breakoutInfo = { didEnd: false, scoreMod: 0 };
   }
