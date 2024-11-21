@@ -10,10 +10,18 @@ const openai = new OpenAI({ apiKey: openAIAPIKEY });
 
 const MAX_MESSAGES = 10;
 const TARGET_USER_WORD_COUNT_PER_MESSAGE = 5; // -1 bonus point for less than this
-const BONUS_WORD_COUNT_SCORE_BENCHMARK = 25; // +1 bonus point for all messages having this
+const BONUS_WORD_COUNT_SCORE_BENCHMARK = 25; // +1 bonus point for averaging higher than this
 
 export const checkEndGame = async (req, res, next) => {
   let finalChatState = res.locals.finalChatState;
+  let breakoutInfo = res.locals.breakoutInfo;
+  let currentScoreMod = res.locals.currentScoreMod;
+  if (!currentScoreMod) {
+    currentScoreMod = 0;
+  }
+  if (!breakoutInfo) {
+    breakoutInfo = { didEnd: false, scoreMod: 0 };
+  }
   let userWordCount = 0;
   let totalUserMessages = 0;
   let parsedFinalChatState = await finalChatState.map((obj) => {
@@ -31,7 +39,7 @@ export const checkEndGame = async (req, res, next) => {
     `;
   });
 
-  if (finalChatState.length > MAX_MESSAGES) {
+  if (finalChatState.length > MAX_MESSAGES || breakoutInfo.didEnd) {
     console.log('ending game');
     let score = await scoreConversation(userConversation);
     let feedback = await giveFeedback(userConversation);
@@ -43,6 +51,7 @@ export const checkEndGame = async (req, res, next) => {
         message: 'internal server error with openai.',
       });
     }
+    console.log({ intScore });
 
     if (userWordCount < totalUserMessages * TARGET_USER_WORD_COUNT_PER_MESSAGE) {
       intScore -= 1;
@@ -50,6 +59,11 @@ export const checkEndGame = async (req, res, next) => {
     if (userWordCount > totalUserMessages * BONUS_WORD_COUNT_SCORE_BENCHMARK) {
       intScore += 1;
     }
+
+    console.log({ currentScoreMod });
+    console.log({ breakoutINFOSCOREMOD: breakoutInfo.scoreMod });
+    intScore += currentScoreMod;
+    intScore += breakoutInfo.scoreMod;
 
     if (intScore < 1) {
       intScore = 1;
