@@ -1,39 +1,34 @@
-import React, { useEffect, useState }  from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 
-export default function ChatSidebarContainer({ open, toggleSidebar}) {
+export default function ChatSidebarContainer({ open, toggleSidebar, person }) {
 
 	const DrawerList = (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleSidebar(false)}>
-      <List>
-        {['Bot1', 'Bot2', 'Bot3', 'Bot4'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+    <Box sx={{ width: 300,
+					padding: 2,
+					background: 'linear-gradient(135deg, #e3f2fd, #bbdefb)',
+					height: '100%', 
+					}} 
+			role="presentation" onClick={toggleSidebar(false)}
+		>
+      {person ? (
+        <div className="p-4 bg-white shadow-md rounded-lg">
+          <h3 className="text-xl font-bold text-gray-800">{person.name}</h3>
+          <p className="text-sm text-gray-500 mb-2"><strong>Bio:</strong> {person.bio}</p>
+          <p className="text-sm text-gray-500 mb-2"><strong>MBTI:</strong> {person.mbti}</p>
+          <p className="text-sm text-gray-500"><strong>Hobbies:</strong> {person.hobbies}</p>
+					<p className="text-sm text-gray-500"><strong>Fun fact:</strong> {person.funfact}</p>
+        </div>
+      ) : (
+        <p>No person selected.</p>
+      )}
     </Box>
   );
 
 	return (
-		<div>
 			<Drawer open={open} onClose={toggleSidebar(false)}>
-        {DrawerList}
+				{DrawerList}
       </Drawer>
-		</div>
 	)
 }

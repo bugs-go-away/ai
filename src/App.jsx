@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-      <ResponsiveAppBar />
+      <ResponsiveAppBar selectedPerson={selectedPerson} />
       {!gameStarted ? (
         <SplashPage onStartGame={handleStartGame} />
       ) : (

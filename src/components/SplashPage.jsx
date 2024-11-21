@@ -11,18 +11,27 @@ const SplashPage = ({ onStartGame }) => {
 			name: 'Noah',
 			type: 'Networking',
 			bio: 'Noah is a seasoned tech professional who loves talking about industry trends and startups.',
+			mbti: 'ESTJ',
+			hobbies: 'loves debugging',
+			funfact: ''
 		},
 		{
 			id: 2,
 			name: 'Garrett',
 			type: 'Dating',
 			bio: 'Garrett is a fun-loving individual who enjoys exploring new restaurants and deep conversations.',
+			mbti: 'ESTJ',
+			hobbies: 'loves debugging',
+			funfact: ''
 		},
 		{
 			id: 3,
 			name: 'Claire',
 			type: 'Casual',
 			bio: 'Claire is a laid-back individual and movie enthusiast, perfect for light-hearted conversations and banter.',
+			mbti: 'ISFP',
+			hobbies: 'loves debugging',
+			funfact: ''
 		},
 	];
 
