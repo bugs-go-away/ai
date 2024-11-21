@@ -18,6 +18,13 @@ const settings = ['Profile', 'Score', 'Logout'];
 function ResponsiveAppBar() {
 
   const [anchorElUser, setAnchorElUser] = useState(null);
+	const [profilePic, setProfilePic] = useState(null);
+	const [openSidebar, setOpenSidebar] = useState(false);
+
+	const toggleSidebar = (newOpen) => () => {
+    setOpenSidebar(newOpen);
+  };
+
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -32,7 +39,16 @@ function ResponsiveAppBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-				<ChatSidebarContainer />
+				<IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+						onClick={toggleSidebar(true)}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+        </IconButton>
           <Typography
             variant="h6"
             noWrap
@@ -43,7 +59,7 @@ function ResponsiveAppBar() {
               mr: 2,
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'monospace',
-              fontWeight: 700,
+              fontWeight: 900,
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
@@ -55,7 +71,7 @@ function ResponsiveAppBar() {
           <Box sx={{ flexGrow: 0, display: { xs: 'none', md: 'flex' } }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="Remy Sharp" src="/pro1.jpg" />
               </IconButton>
             </Tooltip>
             <Menu
@@ -84,6 +100,8 @@ function ResponsiveAppBar() {
         </Toolbar>
       </Container>
     </AppBar>
+
+		<ChatSidebarContainer open={openSidebar} toggleSidebar={toggleSidebar} />
 
 		</>
   );
