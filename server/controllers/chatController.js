@@ -134,7 +134,7 @@ export const receiveAIMessage = async (req, res, next) => {
     });
 
     res.locals.aiMessage = completion.choices[0].message;
-    let breakoutResults = await checkBreakout(res.locals.aiMessage, opponentId);
+    let breakoutResults = await checkBreakout(completion.choices[0].message.content, opponentId);
     res.locals.breakoutInfo = breakoutResults;
     return next();
   } catch (err) {
@@ -148,7 +148,9 @@ export const receiveAIMessage = async (req, res, next) => {
 
 // helper functions
 async function checkBreakout(aiMessage, opponentId) {
-  let strAiMessage = toString(aiMessage);
+  let strAiMessage = String(aiMessage);
+  console.log({ strAiMessage });
+  console.log(aiMessage);
   let persona = opponents[opponentId];
   let totalMod = 0;
   let trippedEnd = false;
