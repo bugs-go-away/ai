@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function ChatContainer() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [username] = useState('user');
+  const [username] = useState('Bob');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = useCallback(() => {
@@ -18,7 +18,7 @@ export default function ChatContainer() {
 
   const sendMessageToServer = async (messageData) => {
     try {
-      const response = await fetch('/chat/message', {
+      const response = await fetch(`http://localhost:3000/chat/message?username=${username}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,11 +26,13 @@ export default function ChatContainer() {
         body: JSON.stringify(messageData),
       });
 
+      // console.log(response);
       if (!response.ok) {
         throw new Error('Failed to send message');
       }
 
       const data = await response.json();
+      console.log(data);
       return data;
     } catch (error) {
       console.error('Error sending message:', error);
@@ -60,14 +62,14 @@ export default function ChatContainer() {
 
       // Send message to server
       const messageData = {
-        username: username,
-        message: inputMessage,
-        timestamp: new Date().toISOString(),
+        //username: username,
+        newMessage: inputMessage,
+        // timestamp: new Date().toISOString(),
       };
 
-      const response = await sendMessageToServer(messageData);
+      const serverResponse = await sendMessageToServer(messageData);
 
-      if (!response) {
+      if (!serverResponse) {
         // Remove the failed message from UI
         setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));
       } else {
@@ -75,10 +77,9 @@ export default function ChatContainer() {
         setMessages((prev) => [
           ...prev,
           {
-            id: response.id || Date.now(), // Use server-provided ID if available
-            text: response.message,
+            id: serverResponse.id || Date.now(), // Use server-provided ID if available
+            text: serverResponse.response.message.content,
             sender: 'server',
-            timestamp: response.timestamp,
           },
         ]);
       }
@@ -97,9 +98,8 @@ export default function ChatContainer() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex flex-col items-center justify-center p-4'>
-			<Toaster />
-      <div className='text-center mb-8 animate-fade-in'>
-      </div>
+      <Toaster />
+      <div className='text-center mb-8 animate-fade-in'></div>
 
       <div className='bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-4xl shadow-lg flex flex-col h-[600px] border border-slate-200 dark:border-slate-700'>
         <div
@@ -110,18 +110,9 @@ export default function ChatContainer() {
           }}
         >
           {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-end space-x-2 ${
-                message.sender === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
+            <div key={message.id} className={`flex items-end space-x-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${
-                  message.sender === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
-                }`}
+                className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${message.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'}`}
               >
                 <p className='text-sm leading-relaxed'>{message.text}</p>
               </div>
