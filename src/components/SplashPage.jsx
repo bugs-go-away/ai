@@ -42,16 +42,15 @@ const SplashPage = ({ onStartGame }) => {
     if (userName && selectedPerson !== null) {
       const selected = people.find((person) => person.id === selectedPerson);
       try {
-        const response = await fetch(`http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          // body: JSON.stringify({
-          //   username: userName,
-          //   personId: ,
-          // }),
-        });
+        const response = await fetch(
+          `http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -71,13 +70,26 @@ const SplashPage = ({ onStartGame }) => {
 
   return (
     <div className='text-center font-sans p-6'>
-      <h1 className='text-3xl font-bold mb-4'>Welcome to Social Skill Builder AI</h1>
-      <p className='text-lg mb-6'>In this game, you will engage in different contextual conversations. Choose your conversation type and see how well you navigate the interaction!</p>
+      <h1 className='text-3xl font-bold mb-4'>
+        Welcome to Social Skill Builder AI
+      </h1>
+      <p className='text-lg mb-6'>
+        In this game, you will engage in different contextual conversations.
+        Choose your conversation type and see how well you navigate the
+        interaction!
+      </p>
+
       <div className='flex justify-center gap-6 mb-6'>
         {people.map((person) => (
           <div
             key={person.id}
-            className={`p-4 border-2 rounded-lg transition-transform duration-200 ${selectedPerson === person.id ? 'border-blue-500' : 'border-transparent'} hover:scale-105`}
+            className={`p-4 border-2 rounded-lg transition-transform duration-200 
+              ${
+                selectedPerson === person.id
+                  ? 'border-blue-500'
+                  : 'border-transparent'
+              } 
+              hover:scale-105 cursor-pointer`}
             onClick={() => handlePersonClick(person.id)}
             onMouseEnter={() => handleHover(person.id)}
             onMouseLeave={handleMouseOut}
@@ -89,7 +101,7 @@ const SplashPage = ({ onStartGame }) => {
                 </div>
               ) : (
                 <img
-                  src={`https://via.placeholder.com/150?text=${person.name}`} //generates a placeholder image with the text inside
+                  src={`https://via.placeholder.com/150?text=${person.name}`}
                   alt={`${person.name}`}
                   className='w-full h-full object-cover'
                 />
@@ -100,9 +112,19 @@ const SplashPage = ({ onStartGame }) => {
           </div>
         ))}
       </div>
+
       <div className='flex justify-center items-center gap-4'>
-        <input type='text' placeholder='Enter your name' value={userName} onChange={(e) => setUserName(e.target.value)} className='px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500' />
-        <button onClick={handleStartGame} className='px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition'>
+        <input
+          type='text'
+          placeholder='Enter your name'
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+          className='px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+        />
+        <button
+          onClick={handleStartGame}
+          className='px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition'
+        >
           Start Conversation
         </button>
       </div>
