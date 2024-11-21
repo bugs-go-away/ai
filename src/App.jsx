@@ -14,13 +14,23 @@ function App() {
     setGameStarted(true);
   };
 
+  const resetGame = () => {
+    setGameStarted(false);
+    setSelectedPerson(null);
+    setUserName('');
+  };
+
   return (
     <>
       <ResponsiveAppBar />
       {!gameStarted ? (
         <SplashPage onStartGame={handleStartGame} />
       ) : (
-        <ChatContainer username={userName} opponent={selectedPerson} />
+        <ChatContainer
+          username={userName}
+          opponent={selectedPerson}
+          onReset={resetGame}
+        />
       )}
     </>
   );
