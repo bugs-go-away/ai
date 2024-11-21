@@ -1,19 +1,38 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Send, Beaker } from 'lucide-react';
+import { Send, Beaker, Loader2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import ScoreContainer from './ScoreContainer';
+
+const CalculatingScore = () => {
+  return (
+    <div className='bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 rounded-3xl p-8 max-w-md w-full mx-4'>
+      <div className='flex flex-col items-center gap-4'>
+        <div className='relative'>
+          <div className='absolute inset-0 bg-blue-500/20 animate-ping rounded-full' />
+          <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />
+        </div>
+        <h2 className='text-2xl font-bold text-slate-800 dark:text-slate-200'>
+          Calculating Score
+        </h2>
+        <p className='text-slate-600 dark:text-slate-400 text-center'>
+          Analyzing your conversation and preparing feedback...
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const TypingIndicator = ({ opponent }) => (
   <div className='flex items-end space-x-2 justify-start'>
     <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
       <img
-        src={opponent?.profileImage || `/api/placeholder/32/32`}
+        src={opponent?.profileImage || `/default.png`}
         alt={opponent?.name}
         className='w-full h-full object-cover'
       />
     </div>
-    <div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
-      <div className='flex space-x-1'>
+    <div className='rounded-2xl px-4 py-3 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
+      <div className='flex space-x-1 items-center min-h-[1.25rem]'>
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
@@ -41,7 +60,7 @@ const Message = ({ message, opponent }) => {
       {!isUser && (
         <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
           <img
-            src={opponent?.profileImage || `/api/placeholder/32/32`}
+            src={opponent?.profileImage || `/default.png`}
             alt={opponent?.name}
             className='w-full h-full object-cover'
           />
@@ -67,9 +86,11 @@ const ChatContainer = ({ username, opponent, onReset }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [gameEnded, setGameEnded] = useState(false);
+  const [isCalculatingScore, setIsCalculatingScore] = useState(false);
   const [gameScore, setGameScore] = useState({ score: 0, feedback: '' });
   const [isTestMode, setIsTestMode] = useState(false);
   const messagesEndRef = useRef(null);
+  const userMessageCount = useRef(0);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -81,16 +102,20 @@ const ChatContainer = ({ username, opponent, onReset }) => {
 
   const testScore = (score) => {
     setGameEnded(true);
-    setGameScore({
-      score: score,
-      feedback: `This is a test feedback message for score ${score}. ${
-        score >= 8
-          ? 'Excellent work!'
-          : score >= 6
-          ? 'Good effort!'
-          : 'Keep practicing!'
-      } This is additional feedback text to test how longer feedback messages appear in the scoring overlay.`,
-    });
+    setIsCalculatingScore(true);
+    setTimeout(() => {
+      setGameScore({
+        score: score,
+        feedback: `This is a test feedback message for score ${score}. ${
+          score >= 8
+            ? 'Excellent work!'
+            : score >= 6
+            ? 'Good effort!'
+            : 'Keep practicing!'
+        } This is additional feedback text to test how longer feedback messages appear in the scoring overlay.`,
+      });
+      setIsCalculatingScore(false);
+    }, 1500);
   };
 
   const sendMessageToServer = async (messageData) => {
@@ -114,11 +139,11 @@ const ChatContainer = ({ username, opponent, onReset }) => {
       console.log('Server response:', data);
 
       if (data.endMessage && data.endMessage.didEnd) {
-        setGameEnded(true);
         setGameScore({
           score: data.endMessage.score || 0,
           feedback: data.endMessage.feedback || 'Game completed!',
         });
+        setIsCalculatingScore(false);
       }
 
       return data;
@@ -144,6 +169,14 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         sender: 'user',
       };
 
+      userMessageCount.current += 1;
+
+      // Check if this is the 6th message
+      if (userMessageCount.current === 6) {
+        setGameEnded(true);
+        setIsCalculatingScore(true);
+      }
+
       setMessages((prev) => [...prev, newMessage]);
       setInputMessage('');
       setIsTyping(true);
@@ -157,6 +190,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
 
       if (!serverResponse) {
         setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));
+        userMessageCount.current -= 1; // Decrement count if message failed
       } else {
         setMessages((prev) => [
           ...prev,
@@ -182,10 +216,12 @@ const ChatContainer = ({ username, opponent, onReset }) => {
 
   const resetGame = () => {
     setGameEnded(false);
+    setIsCalculatingScore(false);
     setGameScore({ score: 0, feedback: '' });
     setMessages([]);
     setInputMessage('');
     setIsTyping(false);
+    userMessageCount.current = 0;
   };
 
   return (
@@ -241,13 +277,17 @@ const ChatContainer = ({ username, opponent, onReset }) => {
       <div className='relative bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-4xl shadow-lg flex flex-col h-[600px] border border-slate-200 dark:border-slate-700'>
         {gameEnded && (
           <div className='absolute inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl'>
-            <div className='w-full max-w-3xl mx-4'>
-              <ScoreContainer
-                score={gameScore.score}
-                feedback={gameScore.feedback}
-                onNewConversation={onReset}
-              />
-            </div>
+            {isCalculatingScore ? (
+              <CalculatingScore />
+            ) : (
+              <div className='w-full max-w-3xl mx-4'>
+                <ScoreContainer
+                  score={gameScore.score}
+                  feedback={gameScore.feedback}
+                  onNewConversation={onReset}
+                />
+              </div>
+            )}
           </div>
         )}
 

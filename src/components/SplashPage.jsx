@@ -28,6 +28,7 @@ const SplashPage = ({ onStartGame }) => {
       name: 'Garrett',
       type: 'Dating',
       bio: 'Garrett is a fun-loving individual who enjoys exploring new restaurants and deep conversations.',
+      profileImage: '/garrett.png',
       mbti: 'ENTJ',
       hobbies: 'reading, rock climbing and a big foodie',
       funfact:
