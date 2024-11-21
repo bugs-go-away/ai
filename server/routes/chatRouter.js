@@ -29,11 +29,13 @@ router.post(
   (req, res, next) => {
     if (res.locals.didEnd === true) {
       endChat(req, res, next); // technically, this will call OUR next and chain on so basically this works, look it up before touching it.
+    } else {
+      next();
     }
   },
   (_req, res, _next) => {
     res.status(200).json({
-      endMessage: { didEnd: res.locals.didEnd ?? false, reason: res.locals.endReason ?? null, score: res.locals.userScore ?? null, feedback: 'you need to change this... like everything about you.' },
+      endMessage: { didEnd: res.locals.didEnd ?? false, reason: res.locals.endReason ?? null, score: res.locals.userScore ?? null, feedback: res.locals.chatFeedback ?? 'none' },
       response: { message: res.locals.aiMessage },
     });
   }
