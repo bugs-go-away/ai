@@ -187,3 +187,21 @@ export const receiveAIMessage = async (req, res, next) => {
 		});
 	}
 };
+
+// helper functions
+async function checkBreakout(aiMessage, opponentId) {
+  let strAiMessage = String(aiMessage);
+  console.log({ strAiMessage });
+  console.log(aiMessage);
+  let persona = opponents[opponentId];
+  let totalMod = 0;
+  let trippedEnd = false;
+  await persona.breakoutPhrases.map((brf) => {
+    if (strAiMessage.match(brf.textMatch) !== null) {
+      trippedEnd = trippedEnd || brf.action === 'end'; // end it if we are alreadyending it or if we said to end it
+      totalMod += brf.scoreMod;
+    }
+    strAiMessage = strAiMessage.replace(brf.textMatch, '');
+  });
+  return { breakoutInfo: { didEnd: trippedEnd, scoreMod: totalMod }, newAiMessage: strAiMessage };
+}
