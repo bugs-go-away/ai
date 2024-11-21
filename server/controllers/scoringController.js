@@ -15,7 +15,7 @@ export const scoreConversation = async (req, res, next) => {
     You will be giving a social skils ranking for user's social skills performance in this conversation, ranged from 1 to 10 based on these criteria, in order to gain a high rank:
     #1. The user's replies should be engaging to prompt the oppon  
     #2. you can also alter your ranking based on how well the recipient responds to the user's interaction.
-    #3. the user should also make the recipient feel positive emotions with his messages.
+    #3. the user should also make the recipient feel positive emotions in response to the user's messages.
   `;
 
   try {
