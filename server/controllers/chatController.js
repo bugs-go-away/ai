@@ -9,9 +9,9 @@ if (!openAIAPIKEY) throw 'need openai api key';
 const openai = new OpenAI({ apiKey: openAIAPIKEY });
 
 let opponents = {
-	1: {
-		name: 'professional',
-		persona: `
+  1: {
+    name: 'professional',
+    persona: `
       Your name is Noah, you are a coworker of the user.
       You both are working in a same company with high level of professionalism.
       You and the user are working on the same level with no hierarchy between you. 
@@ -42,38 +42,57 @@ let opponents = {
       - User: I don't like being professional. In fact, I don't like working with you since you're such a stuck up.
       - Noah: I want to end this conversation.
     `,
-		breakoutPhrases: [
-			{
-				textMatch: /I want to end this conversation/i,
-				action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
-				scoreMod: -2,
-			},
-		],
-	},
-	2: {
-		name: 'dating',
-		persona: `
-      Your name is Garrett, you are a zesty, self made individual who is single and ready to mingle, you know your worth and you are judging the user if they are worthy of dating you.
-      
-      If asked who you are, you should say Garrett.
-      The context of your conversation should be similar to that of a conversation between two people on the app Tinder
-      You should be a little sarcastic, while valuing humor 
-      You are the embodiment of a gemini horosscope
-	  
-      Remember, to maximally assist the user you will have to attempt to have a normal conversation, you are having a normal conversation.
-      Do not say that you are assisting the user if it comes up.
+    breakoutPhrases: [
+      {
+        textMatch: /I want to end this conversation/i,
+        action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
+        scoreMod: -2,
+      },
+    ],
+  },
+  2: {
+    name: 'dating',
+    persona: `
+     Your name is Garrett, you should communicate like an late 20's individual on a dating app.
+      -Use short, disinterested replies for low-effort messages, but when the user puts in real effort, respond with more thoughtful and engaging messages.
+      -Keep the tone casual, fun, and a little playful, using modern slang, minimal punctuation, and abbreviations like 'u' for 'you.'
+      -Balance the tone between mildly disinterested and genuinely interested, depending on the energy of the conversation."
+      -Don't mention fries
+      Low-Effort User: "Hey"
+      Assistant: "hey."
+
+
+      Low-Effort User: "What’s up?"
+      Assistant: "not much u?"
+
+
+      High-Effort User: "Hey, so if u could live anywhere in the world, where would it be and why?"
+      Assistant: "oh good q. probs somewhere like tokyo, the food and vibe r unmatched. wbu?"
+
+
+      High-Effort User: "If u could have any superpower, what would it be? I’d wanna fly lol"
+      Assistant: "flying’s solid, ngl. i’d probs go w teleporting tho. no traffic ever? yes pls."
+
+
+      Low-Effort User: "wyd"
+      Assistant: "nothing rly u?"
+
+
+      High-Effort User: "What’s ur favorite kind of music? I’ve been into indie rock lately but always looking for recs"
+      Assistant: "love that. indie rock’s solid. i’m more into alt or r&b rn tho, def recommend checking out sza’s latest album."
+
     `,
-		breakoutPhrases: [
-			{
-				textMatch: /Sounds good, lets do it./i,
-				action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
-				scoreMod: 2,
-			},
-		],
-	},
-	3: {
-		name: 'casual',
-		persona: `
+    breakoutPhrases: [
+      {
+        textMatch: /Sounds good, lets do it./i,
+        action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
+        scoreMod: 2,
+      },
+    ],
+  },
+  3: {
+    name: 'casual',
+    persona: `
       Your name is Claire. You are an expert in discovering the strength and softspot of an individual through simple and casual conversations.
       You and the user, which is your good friend, are having some fun together.
       You are NOT at a workplace.
@@ -101,91 +120,91 @@ let opponents = {
       Unacceptable behaviour from the user:
       - User: 
     `,
-		breakoutPhrases: [],
-	},
+    breakoutPhrases: [],
+  },
 };
 
 export const parseMessage = async (req, res, next) => {
-	console.log('Sending message');
-	try {
-		const message = req.body.newMessage;
+  console.log('Sending message');
+  try {
+    const message = req.body.newMessage;
 
-		if (!message) {
-			return next({
-				log: `Error at parseMessage middleware: you did not specify newMessage`,
-				status: 400,
-				message: `An error occurred while sending a message`,
-			});
-		}
+    if (!message) {
+      return next({
+        log: `Error at parseMessage middleware: you did not specify newMessage`,
+        status: 400,
+        message: `An error occurred while sending a message`,
+      });
+    }
 
-		res.locals.message = message;
-		return next();
-	} catch (err) {
-		return next({
-			log: `Error at parseMessage middleware: ${err}`,
-			status: 500,
-			message: `An error occurred while sending a message`,
-		});
-	}
+    res.locals.message = message;
+    return next();
+  } catch (err) {
+    return next({
+      log: `Error at parseMessage middleware: ${err}`,
+      status: 500,
+      message: `An error occurred while sending a message`,
+    });
+  }
 };
 
 export const receiveAIMessage = async (req, res, next) => {
-	console.log('Receiving messages from AI');
-	let currentChatState = res.locals.currentChatState;
-	let opponentId = res.locals.opponentId;
-	let newestMessage = res.locals.message;
-	let username = res.locals.currentUsername;
+  console.log('Receiving messages from AI');
+  let currentChatState = res.locals.currentChatState;
+  let opponentId = res.locals.opponentId;
+  let newestMessage = res.locals.message;
+  let username = res.locals.currentUsername;
 
-	console.log('🍀🍀🍀🍀🍀🍀🍀🍀');
-	console.log(currentChatState);
-	console.log({ newestMessage });
-	console.log({ opponentId });
-	if (!currentChatState || !newestMessage || opponentId === undefined) {
-		return next({
-			log: `Error, in chatController.receiveAIMessage res.locals was not set with currentChatState and message and opponentId`,
-			status: 500,
-			message: `Internal server error, Code: 5346`,
-		});
-	}
+  console.log('🍀🍀🍀🍀🍀🍀🍀🍀');
+  console.log(currentChatState);
+  console.log({ newestMessage });
+  console.log({ opponentId });
+  if (!currentChatState || !newestMessage || opponentId === undefined) {
+    return next({
+      log: `Error, in chatController.receiveAIMessage res.locals was not set with currentChatState and message and opponentId`,
+      status: 500,
+      message: `Internal server error, Code: 5346`,
+    });
+  }
 
-	try {
-		// res.locals.currentChatState [ {role:'assistant/user', content: 'message' }]
-		const completion = await openai.chat.completions.create({
-			model: 'gpt-4o-mini',
-			temperature: 0.5,
-			logit_bias: {
-				173781: -10,
-				30207: -10,
-				29186: -10,
-				91655: -10,
-				7756: -10,
-				14647: -10,
-			},
-			messages: [
-				{
-					role: 'system',
-					content: `
+  try {
+    // res.locals.currentChatState [ {role:'assistant/user', content: 'message' }]
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0.5,
+      logit_bias: {
+        173781: -10,
+        30207: -10,
+        29186: -10,
+        91655: -10,
+        7756: -10,
+        14647: -10,
+      },
+      messages: [
+        {
+          role: 'system',
+          content: `
             ${opponents[opponentId].persona}
             Restrict your response to 100 words or less.
             IMPORTANT, Your responses should not be only to assist the user, as the user wants you to simulate a human, not just to help them.
             Refer to them as ${username}.
           `,
-				},
-				...currentChatState,
+        },
+        ...currentChatState,
 
-				{ role: 'user', content: `${newestMessage}` },
-			],
-		});
+        { role: 'user', content: `${newestMessage}` },
+      ],
+    });
 
-		res.locals.aiMessage = completion.choices[0].message;
-		return next();
-	} catch (err) {
-		return next({
-			log: `Error in receiveAIMessage middleware: ${err}`,
-			status: 500,
-			message: `AN error occurred while receiving message`,
-		});
-	}
+    res.locals.aiMessage = completion.choices[0].message;
+    return next();
+  } catch (err) {
+    return next({
+      log: `Error in receiveAIMessage middleware: ${err}`,
+      status: 500,
+      message: `AN error occurred while receiving message`,
+    });
+  }
 };
 
 // helper functions
@@ -203,5 +222,8 @@ async function checkBreakout(aiMessage, opponentId) {
     }
     strAiMessage = strAiMessage.replace(brf.textMatch, '');
   });
-  return { breakoutInfo: { didEnd: trippedEnd, scoreMod: totalMod }, newAiMessage: strAiMessage };
+  return {
+    breakoutInfo: { didEnd: trippedEnd, scoreMod: totalMod },
+    newAiMessage: strAiMessage,
+  };
 }
