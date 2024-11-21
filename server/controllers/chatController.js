@@ -134,6 +134,8 @@ export const receiveAIMessage = async (req, res, next) => {
     });
 
     res.locals.aiMessage = completion.choices[0].message;
+    let breakoutResults = await checkBreakout(res.locals.aiMessage, opponentId);
+    res.locals.breakoutInfo = breakoutResults;
     return next();
   } catch (err) {
     return next({
@@ -143,3 +145,17 @@ export const receiveAIMessage = async (req, res, next) => {
     });
   }
 };
+
+// helper functions
+async function checkBreakout(aiMessage, opponentId) {
+  let persona = opponents[opponentId];
+  let totalMod = 0;
+  let trippedEnd = false;
+  await persona.breakoutPhrases.map((brf) => {
+    if (aiMessage.match(brf.textMatch) !== null) {
+      trippedEnd = trippedEnd || brf.action === 'end'; // end it if we are alreadyending it or if we said to end it
+      totalMod += brf.scoreMod;
+    }
+  });
+  return { didEnd: trippedEnd, scoreMod: totalMod };
+}

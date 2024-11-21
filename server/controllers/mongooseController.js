@@ -86,6 +86,7 @@ export const getChatData = async (req, res, next) => {
     res.locals.currentChatState = message.conversation;
     res.locals.opponentId = message.opponentId;
     res.locals.currentUsername = username;
+    res.locals.currentRunningScoreMod = message.runningScoreMod;
 
     return next();
   } catch (error) {
@@ -102,15 +103,17 @@ export const saveConversationToChat = async (_req, res, next) => {
   let newUserMessage = res.locals.message;
   let aiMessage = res.locals.aiMessage;
   let username = res.locals.currentUsername;
+  let currentRunningScoreMod = res.locals.currentRunningScoreMod;
+  let breakoutInfo = res.locals.breakoutInfo;
 
-  if (!chatState || !aiMessage || !newUserMessage || !username) {
+  if (!chatState || !aiMessage || !newUserMessage || !username || !currentRunningScoreMod || !breakoutInfo) {
     return next({
-      log: 'error, in middleware, we got to saveConversationToChat and did not have currentChatState or aiMessage or currentUsername on res.locals!',
+      log: 'error, in middleware, we got to saveConversationToChat and did not have currentChatState or aiMessage or currentUsername or currentRunningScoreMod or breakoutInfo on res.locals!',
       status: 500,
-      message: 'internal server error tell the devs code: 5061',
+      message: 'internal server error with saving conversation tell the devs code: 5061',
     });
   }
-
+  let newRunningScoreMod = currentRunningScoreMod + breakoutInfo.scoreMod;
   console.log(aiMessage);
   let newConversation = chatState;
   newConversation.push({ role: 'user', content: newUserMessage });
@@ -118,7 +121,7 @@ export const saveConversationToChat = async (_req, res, next) => {
 
   res.locals.finalChatState = newConversation;
   try {
-    let message = await Chat.findOneAndUpdate({ username: username, password: '1234' }, { conversation: newConversation });
+    let message = await Chat.findOneAndUpdate({ username: username, password: '1234' }, { conversation: newConversation, runningScoreMod: newRunningScoreMod });
     res.locals.mongoQueryResults = message;
     console.log('updated the database Chat, got this message ' + message + 'from mongoose');
     return next();
