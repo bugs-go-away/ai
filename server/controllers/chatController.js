@@ -198,7 +198,7 @@ export const receiveAIMessage = async (req, res, next) => {
     });
 
     res.locals.aiMessage = completion.choices[0].message;
-    let breakoutResponses = await checkBreakout(completion.choices[0].message.content, oppoenntId);
+    let breakoutResponses = await checkBreakout(completion.choices[0].message.content, opponentId);
     res.locals.aiMessage.content = breakoutResponses.newAiMessage;
     res.locals.breakoutInfo = breakoutResponses.breakoutInfo;
 
