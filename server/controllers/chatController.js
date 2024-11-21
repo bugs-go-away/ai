@@ -66,6 +66,7 @@ let opponents = {
         textMatch: /\+1/,
         action: 'log',
         scoreMod: 0.1,
+        delete: true,
       },
     ],
   },
@@ -142,7 +143,8 @@ export const receiveAIMessage = async (req, res, next) => {
 
     res.locals.aiMessage = completion.choices[0].message;
     let breakoutResults = await checkBreakout(completion.choices[0].message.content, opponentId);
-    res.locals.breakoutInfo = breakoutResults;
+    res.locals.breakoutInfo = breakoutResults.breakoutInfo;
+    res.locals.aiMessage.content = breakoutResults.newAiMessage;
     return next();
   } catch (err) {
     return next({
@@ -166,6 +168,7 @@ async function checkBreakout(aiMessage, opponentId) {
       trippedEnd = trippedEnd || brf.action === 'end'; // end it if we are alreadyending it or if we said to end it
       totalMod += brf.scoreMod;
     }
+    strAiMessage = strAiMessage.replace(brf.textMatch, '');
   });
-  return { didEnd: trippedEnd, scoreMod: totalMod };
+  return { breakoutInfo: { didEnd: trippedEnd, scoreMod: totalMod }, newAiMessage: strAiMessage };
 }
