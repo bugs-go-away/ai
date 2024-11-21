@@ -53,6 +53,7 @@ let opponents = {
   2: {
     name: 'dating',
     persona: `
+
      Your name is Garrett, you should communicate like an late 20's individual on a dating app.
       -Use short, disinterested replies for low-effort messages, but when the user puts in real effort, respond with more thoughtful and engaging messages.
       -Keep the tone casual, fun, and a little playful, using modern slang, minimal punctuation, and abbreviations like 'u' for 'you.'
@@ -197,6 +198,10 @@ export const receiveAIMessage = async (req, res, next) => {
     });
 
     res.locals.aiMessage = completion.choices[0].message;
+    let breakoutResponses = await checkBreakout(completion.choices[0].message.content, oppoenntId);
+    res.locals.aiMessage.content = breakoutResponses.newAiMessage;
+    res.locals.breakoutInfo = breakoutResponses.breakoutInfo;
+
     return next();
   } catch (err) {
     return next({
