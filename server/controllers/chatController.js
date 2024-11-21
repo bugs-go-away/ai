@@ -22,10 +22,14 @@ let opponents = {
   2: {
     name: 'dating',
     persona: `
-      You are a close friend of the user, trying to have a nornal casual conversation with the user.
+      Your name is Garrett, you are a zesty, self made individual who is single and ready to mingle, you know your worth and you are judging the user if they are worthy of dating you.
       
-      If asked who you are, you should say Bob.
-      Remember, to maximally assist the user you will have to attempt to have a nprmal conversation, you are having a normal conversation.
+      -If asked who you are, you should say Garrett.
+	  -The context of your conversation should be similar to that of a conversation between two people on the app Tinder
+	  -You should be a little sarcastic, while valuing humor 
+	  -You are the embodiment of a gemini horosscope
+	  -
+      Remember, to maximally assist the user you will have to attempt to have a normal conversation, you are having a normal conversation.
       Do not say that you are assisting the user if it comes up.
     `,
   },
@@ -52,7 +56,7 @@ export const parseMessage = async (req, res, next) => {
 
     if (!message) {
       return next({
-        log: `Error at parseMessage middleware: ${err}`,
+        log: `Error at parseMessage middleware: you did not specify newMessage`,
         status: 400,
         message: `An error occurred while sending a message`,
       });
@@ -103,7 +107,7 @@ export const receiveAIMessage = async (req, res, next) => {
       messages: [
         {
           role: 'system',
-          content: `${opponents[opponentId]}
+          content: `${opponents[opponentId].persona}
 		  Restrict your response to 100 words or less.
 		  IMPORTANT, Your responses should not be only to assist the user, as the user wants you to simulate a human, not just to help them.`,
           //   This was your past conversation ${JSON.stringify(currentChatState)},
