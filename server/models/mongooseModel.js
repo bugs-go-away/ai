@@ -6,20 +6,20 @@ const MONGO_URI = process.env.MONGODB_URI;
 if (!MONGO_URI) throw 'need MONGODB_URI to be set.';
 
 mongoose
-	.connect(MONGO_URI, {
-		dbName: 's-train-chats',
-	})
-	.then(() => console.log('Connected to Mongo DB.'))
-	.catch((err) => console.log(err));
+  .connect(MONGO_URI, {
+    dbName: 's-train-chats',
+  })
+  .then(() => console.log('Connected to Mongo DB.'))
+  .catch((err) => console.log(err));
 
 const Schema = mongoose.Schema;
 
 const chatSchema = new Schema({
-	username: String,
-	password: String,
-	start_time: Date,
-	opponentId: Number,
-	conversation: [{ role: String, content: String }],
+  username: String,
+  password: String,
+  start_time: { type: Date, expires: 300, default: Date.now },
+  opponentId: Number,
+  conversation: [{ role: String, content: String }],
 });
 
 // create chat schema
