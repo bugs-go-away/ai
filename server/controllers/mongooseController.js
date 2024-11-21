@@ -106,7 +106,7 @@ export const saveConversationToChat = async (_req, res, next) => {
   let currentRunningScoreMod = res.locals.currentRunningScoreMod;
   let breakoutInfo = res.locals.breakoutInfo;
 
-  if (!chatState || !aiMessage || !newUserMessage || !username || !currentRunningScoreMod || !breakoutInfo) {
+  if (!chatState || !aiMessage || !newUserMessage || !username || currentRunningScoreMod === undefined || !breakoutInfo) {
     return next({
       log: 'error, in middleware, we got to saveConversationToChat and did not have currentChatState or aiMessage or currentUsername or currentRunningScoreMod or breakoutInfo on res.locals!',
       status: 500,
