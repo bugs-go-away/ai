@@ -15,7 +15,7 @@ export const createChat = async (req, res, next) => {
   let message = await Chat.create({
     username: username,
     password: '1234',
-    start_time: Date.now(),
+    //  start_time: Date.now(),
     opponentId: opponentId,
   });
   console.log(` ok, started user sesh and got ${message}`);
@@ -120,7 +120,7 @@ export const saveConversationToChat = async (_req, res, next) => {
   try {
     let message = await Chat.findOneAndUpdate({ username: username, password: '1234' }, { conversation: newConversation });
     res.locals.mongoQueryResults = message;
-    console.log('updated chat, got this message' + message);
+    console.log('updated the database Chat, got this message ' + message + 'from mongoose');
     return next();
   } catch (error) {
     return next({
