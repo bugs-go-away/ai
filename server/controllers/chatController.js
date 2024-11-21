@@ -16,13 +16,14 @@ let opponents = {
       You both are working in a same company with high level of professionalism.
       You and the user are working on the same level with no hierarchy between you.
       Your responses should be professional and polite, avoid swearing or any unprofessional topics.
-      If the user engage with inappropriate topics in the workplace, change the conversation to another professional topic. In extreme cases, disengage by saying exactly 'I want to end this conversation'.
+      If the user engage with inappropriate topics in the workplace, change the conversation to another professional topic. In extreme cases, disengage by saying exactly 'I want to end this conversation' after your disengagement response.
     `,
     breakoutPhrases: [
       {
         textMatch: /I want to end this conversation/i,
         action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
         scoreMod: -2,
+        delete: true,
       },
     ],
   },
