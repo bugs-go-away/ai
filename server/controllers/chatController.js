@@ -148,11 +148,12 @@ export const receiveAIMessage = async (req, res, next) => {
 
 // helper functions
 async function checkBreakout(aiMessage, opponentId) {
+  let strAiMessage = toString(aiMessage);
   let persona = opponents[opponentId];
   let totalMod = 0;
   let trippedEnd = false;
   await persona.breakoutPhrases.map((brf) => {
-    if (aiMessage.match(brf.textMatch) !== null) {
+    if (strAiMessage.match(brf.textMatch) !== null) {
       trippedEnd = trippedEnd || brf.action === 'end'; // end it if we are alreadyending it or if we said to end it
       totalMod += brf.scoreMod;
     }
