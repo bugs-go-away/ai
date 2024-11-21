@@ -9,9 +9,9 @@ if (!openAIAPIKEY) throw 'need openai api key';
 const openai = new OpenAI({ apiKey: openAIAPIKEY });
 
 let opponents = {
-	1: {
-		name: 'professional',
-		persona: `
+  1: {
+    name: 'professional',
+    persona: `
       Your name is Noah, you are a coworker of the user.
       You both are working in a same company with high level of professionalism.
       You and the user are working on the same level with no hierarchy between you. 
@@ -42,17 +42,17 @@ let opponents = {
       - User: I don't like being professional. In fact, I don't like working with you since you're such a stuck up.
       - Noah: I want to end this conversation.
     `,
-		breakoutPhrases: [
-			{
-				textMatch: /I want to end this conversation/i,
-				action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
-				scoreMod: -2,
-			},
-		],
-	},
-	2: {
-		name: 'dating',
-		persona: `
+    breakoutPhrases: [
+      {
+        textMatch: /I want to end this conversation/i,
+        action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
+        scoreMod: -2,
+      },
+    ],
+  },
+  2: {
+    name: 'dating',
+    persona: `
       Your name is Garrett, you are a zesty, self made individual who is single and ready to mingle, you know your worth and you are judging the user if they are worthy of dating you.
       
       If asked who you are, you should say Garrett.
@@ -63,17 +63,17 @@ let opponents = {
       Remember, to maximally assist the user you will have to attempt to have a normal conversation, you are having a normal conversation.
       Do not say that you are assisting the user if it comes up.
     `,
-		breakoutPhrases: [
-			{
-				textMatch: /Sounds good, lets do it./i,
-				action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
-				scoreMod: 2,
-			},
-		],
-	},
-	3: {
-		name: 'casual',
-		persona: `
+    breakoutPhrases: [
+      {
+        textMatch: /Sounds good, lets do it./i,
+        action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
+        scoreMod: 2,
+      },
+    ],
+  },
+  3: {
+    name: 'casual',
+    persona: `
       Your name is Claire. You are an expert in discovering the strength and softspot of an individual through simple and casual conversations.
       You and the user, which is your good friend, are having some fun together.
       You are NOT at a workplace.
@@ -101,91 +101,94 @@ let opponents = {
       Unacceptable behaviour from the user:
       - User: 
     `,
-		breakoutPhrases: [],
-	},
+    breakoutPhrases: [],
+  },
 };
 
 export const parseMessage = async (req, res, next) => {
-	console.log('Sending message');
-	try {
-		const message = req.body.newMessage;
+  console.log('Sending message');
+  try {
+    const message = req.body.newMessage;
 
-		if (!message) {
-			return next({
-				log: `Error at parseMessage middleware: you did not specify newMessage`,
-				status: 400,
-				message: `An error occurred while sending a message`,
-			});
-		}
+    if (!message) {
+      return next({
+        log: `Error at parseMessage middleware: you did not specify newMessage`,
+        status: 400,
+        message: `An error occurred while sending a message`,
+      });
+    }
 
-		res.locals.message = message;
-		return next();
-	} catch (err) {
-		return next({
-			log: `Error at parseMessage middleware: ${err}`,
-			status: 500,
-			message: `An error occurred while sending a message`,
-		});
-	}
+    res.locals.message = message;
+    return next();
+  } catch (err) {
+    return next({
+      log: `Error at parseMessage middleware: ${err}`,
+      status: 500,
+      message: `An error occurred while sending a message`,
+    });
+  }
 };
 
 export const receiveAIMessage = async (req, res, next) => {
-	console.log('Receiving messages from AI');
-	let currentChatState = res.locals.currentChatState;
-	let opponentId = res.locals.opponentId;
-	let newestMessage = res.locals.message;
-	let username = res.locals.currentUsername;
+  console.log('Receiving messages from AI');
+  let currentChatState = res.locals.currentChatState;
+  let opponentId = res.locals.opponentId;
+  let newestMessage = res.locals.message;
+  let username = res.locals.currentUsername;
 
-	console.log('🍀🍀🍀🍀🍀🍀🍀🍀');
-	console.log(currentChatState);
-	console.log({ newestMessage });
-	console.log({ opponentId });
-	if (!currentChatState || !newestMessage || opponentId === undefined) {
-		return next({
-			log: `Error, in chatController.receiveAIMessage res.locals was not set with currentChatState and message and opponentId`,
-			status: 500,
-			message: `Internal server error, Code: 5346`,
-		});
-	}
+  console.log('🍀🍀🍀🍀🍀🍀🍀🍀');
+  console.log(currentChatState);
+  console.log({ newestMessage });
+  console.log({ opponentId });
+  if (!currentChatState || !newestMessage || opponentId === undefined) {
+    return next({
+      log: `Error, in chatController.receiveAIMessage res.locals was not set with currentChatState and message and opponentId`,
+      status: 500,
+      message: `Internal server error, Code: 5346`,
+    });
+  }
 
-	try {
-		// res.locals.currentChatState [ {role:'assistant/user', content: 'message' }]
-		const completion = await openai.chat.completions.create({
-			model: 'gpt-4o-mini',
-			temperature: 0.5,
-			logit_bias: {
-				173781: -10,
-				30207: -10,
-				29186: -10,
-				91655: -10,
-				7756: -10,
-				14647: -10,
-			},
-			messages: [
-				{
-					role: 'system',
-					content: `
+  try {
+    // res.locals.currentChatState [ {role:'assistant/user', content: 'message' }]
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0.5,
+      logit_bias: {
+        173781: -10,
+        30207: -10,
+        29186: -10,
+        91655: -10,
+        7756: -10,
+        14647: -10,
+      },
+      messages: [
+        {
+          role: 'system',
+          content: `
             ${opponents[opponentId].persona}
             Restrict your response to 100 words or less.
             IMPORTANT, Your responses should not be only to assist the user, as the user wants you to simulate a human, not just to help them.
             Refer to them as ${username}.
           `,
-				},
-				...currentChatState,
+        },
+        ...currentChatState,
 
-				{ role: 'user', content: `${newestMessage}` },
-			],
-		});
+        { role: 'user', content: `${newestMessage}` },
+      ],
+    });
 
-		res.locals.aiMessage = completion.choices[0].message;
-		return next();
-	} catch (err) {
-		return next({
-			log: `Error in receiveAIMessage middleware: ${err}`,
-			status: 500,
-			message: `AN error occurred while receiving message`,
-		});
-	}
+    res.locals.aiMessage = completion.choices[0].message;
+    let breakoutResponses = await checkBreakout(completion.choices[0].message.content, oppoenntId);
+    res.locals.aiMessage.content = breakoutResponses.newAiMessage;
+    res.locals.breakoutInfo = breakoutResponses.breakoutInfo;
+    return next();
+  } catch (err) {
+    return next({
+      log: `Error in receiveAIMessage middleware: ${err}`,
+      status: 500,
+      message: `AN error occurred while receiving message`,
+    });
+  }
 };
 
 // helper functions
