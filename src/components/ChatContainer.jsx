@@ -4,22 +4,22 @@ import toast, { Toaster } from 'react-hot-toast';
 import ScoreContainer from './ScoreContainer';
 
 const TypingIndicator = () => (
-  <div className='flex items-end space-x-2 justify-start'>
-    <div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
-      <div className='flex space-x-1'>
-        {[...Array(3)].map((_, i) => (
-          <div
-            key={i}
-            className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
-            style={{
-              animationDelay: `${i * 0.2}s`,
-              animationDuration: '1s',
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  </div>
+	<div className='flex items-end space-x-2 justify-start'>
+		<div className='rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
+			<div className='flex space-x-1'>
+				{[...Array(3)].map((_, i) => (
+					<div
+						key={i}
+						className='w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce'
+						style={{
+							animationDelay: `${i * 0.2}s`,
+							animationDuration: '1s',
+						}}
+					/>
+				))}
+			</div>
+		</div>
+	</div>
 );
 
 const ChatContainer = ({ username, opponent, onReset }) => {
@@ -33,9 +33,9 @@ const ChatContainer = ({ username, opponent, onReset }) => {
   // Add test mode state
   const [isTestMode, setIsTestMode] = useState(false);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+	const scrollToBottom = useCallback(() => {
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	}, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -56,22 +56,22 @@ const ChatContainer = ({ username, opponent, onReset }) => {
     });
   };
 
-  const sendMessageToServer = async (messageData) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/chat/message?username=${username}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(messageData),
-        }
-      );
+	const sendMessageToServer = async (messageData) => {
+		try {
+			const response = await fetch(
+				`http://localhost:3000/chat/message?username=${username}`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(messageData),
+				}
+			);
 
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
+			if (!response.ok) {
+				throw new Error('Failed to send message');
+			}
 
       const data = await response.json();
       console.log('Server response:', data);
@@ -100,13 +100,13 @@ const ChatContainer = ({ username, opponent, onReset }) => {
     }
   };
 
-  const handleSendMessage = useCallback(async () => {
-    if (inputMessage.trim()) {
-      const newMessage = {
-        id: Date.now(),
-        text: inputMessage,
-        sender: 'user',
-      };
+	const handleSendMessage = useCallback(async () => {
+		if (inputMessage.trim()) {
+			const newMessage = {
+				id: Date.now(),
+				text: inputMessage,
+				sender: 'user',
+			};
 
       setMessages((prev) => [...prev, newMessage]);
       setInputMessage('');
@@ -116,8 +116,8 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         newMessage: inputMessage,
       };
 
-      const serverResponse = await sendMessageToServer(messageData);
-      setIsTyping(false);
+			const serverResponse = await sendMessageToServer(messageData);
+			setIsTyping(false);
 
       if (!serverResponse) {
         setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));

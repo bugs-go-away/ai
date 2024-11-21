@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { ArrowRight, Users, MessageSquare, Coffee } from 'lucide-react';
 
 const SplashPage = ({ onStartGame }) => {
-  const [selectedPerson, setSelectedPerson] = useState(null);
-  const [hoveredPerson, setHoveredPerson] = useState(null);
-  const [userName, setUserName] = useState('');
+	const [selectedPerson, setSelectedPerson] = useState(null);
+	const [hoveredPerson, setHoveredPerson] = useState(null);
+	const [userName, setUserName] = useState('');
 
   const people = [
     {
@@ -42,35 +42,37 @@ const SplashPage = ({ onStartGame }) => {
     },
   ];
 
-  const handleStartGame = async () => {
-    if (userName && selectedPerson !== null) {
-      const selected = people.find((person) => person.id === selectedPerson);
-      try {
-        const response = await fetch(
-          `http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+	const handleStartGame = async () => {
+		if (userName && selectedPerson !== null) {
+			const selected = people.find(
+				(person) => person.id === selectedPerson
+			);
+			try {
+				const response = await fetch(
+					`http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}`,
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					}
+				);
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Chat Initialized: ', data);
-          onStartGame(userName, selected);
-        } else {
-          alert('Failed to initialize chat');
-        }
-      } catch (error) {
-        console.error('Error initializing: ', error);
-        alert('An error has occurred, try again');
-      }
-    } else {
-      alert('Please enter your name and select a person to start!');
-    }
-  };
+				if (response.ok) {
+					const data = await response.json();
+					console.log('Chat Initialized: ', data);
+					onStartGame(userName, selected);
+				} else {
+					alert('Failed to initialize chat');
+				}
+			} catch (error) {
+				console.error('Error initializing: ', error);
+				alert('An error has occurred, try again');
+			}
+		} else {
+			alert('Please enter your name and select a person to start!');
+		}
+	};
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4'>
