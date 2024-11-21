@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { ArrowRight, Users, MessageSquare, Coffee } from 'lucide-react';
 
 const SplashPage = ({ onStartGame }) => {
-	const [selectedPerson, setSelectedPerson] = useState(null);
-	const [hoveredPerson, setHoveredPerson] = useState(null);
-	const [userName, setUserName] = useState('');
+  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [hoveredPerson, setHoveredPerson] = useState(null);
+  const [userName, setUserName] = useState('');
 
   const people = [
     {
@@ -12,81 +12,83 @@ const SplashPage = ({ onStartGame }) => {
       name: 'Noah',
       type: 'Networking',
       bio: 'Noah is a seasoned tech professional who loves talking about industry trends and startups.',
-			mbti: 'ESTJ',
-			hobbies: 'loves debugging',
-			funfact: '',
+      mbti: 'ESTJ',
+      hobbies: 'loves debugging',
+      funfact: '',
       icon: <Users className='w-6 h-6' />,
       gradient: 'from-blue-500/20 to-transparent',
       color: 'text-blue-500',
       borderColor: 'border-blue-200 dark:border-blue-800',
       bgColor: 'bg-blue-50 dark:bg-blue-900/10',
+      selectedBorder: 'border-blue-500',
     },
     {
       id: 2,
       name: 'Garrett',
       type: 'Dating',
       bio: 'Garrett is a fun-loving individual who enjoys exploring new restaurants and deep conversations.',
-			mbti: 'ESTJ',
-			hobbies: 'loves debugging',
-			funfact: '',
+      profileImage: '/garrett.jpeg',
+      mbti: 'ENTJ',
+      hobbies: 'loves debugging',
+      funfact: '',
       icon: <MessageSquare className='w-6 h-6' />,
       gradient: 'from-rose-500/20 to-transparent',
       color: 'text-rose-500',
       borderColor: 'border-rose-200 dark:border-rose-800',
       bgColor: 'bg-rose-50 dark:bg-rose-900/10',
+      selectedBorder: 'border-rose-500',
     },
     {
       id: 3,
       name: 'Claire',
       type: 'Casual',
       bio: 'Claire is a laid-back individual and movie enthusiast, perfect for light-hearted conversations and banter.',
-			mbti: 'ESTJ',
-			hobbies: [''],
-			funfact: '',
+      mbti: 'ESTJ',
+      hobbies: [''],
+      funfact: '',
       icon: <Coffee className='w-6 h-6' />,
       gradient: 'from-green-500/20 to-transparent',
       color: 'text-green-500',
       borderColor: 'border-green-200 dark:border-green-800',
       bgColor: 'bg-green-50 dark:bg-green-900/10',
+      selectedBorder: 'border-green-500',
     },
   ];
 
-	const handleStartGame = async () => {
-		if (userName && selectedPerson !== null) {
-			const selected = people.find(
-				(person) => person.id === selectedPerson
-			);
-			try {
-				const response = await fetch(
-					`http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}`,
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-					}
-				);
+  const handleStartGame = async () => {
+    if (userName && selectedPerson !== null) {
+      const selected = people.find((person) => person.id === selectedPerson);
+      try {
+        const response = await fetch(
+          `http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
-				if (response.ok) {
-					const data = await response.json();
-					console.log('Chat Initialized: ', data);
-					onStartGame(userName, selected);
-				} else {
-					alert('Failed to initialize chat');
-				}
-			} catch (error) {
-				console.error('Error initializing: ', error);
-				alert('An error has occurred, try again');
-			}
-		} else {
-			alert('Please enter your name and select a person to start!');
-		}
-	};
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Chat Initialized: ', data);
+          onStartGame(userName, selected);
+        } else {
+          alert('Failed to initialize chat');
+        }
+      } catch (error) {
+        console.error('Error initializing: ', error);
+        alert('An error has occurred, try again');
+      }
+    } else {
+      alert('Please enter your name and select a person to start!');
+    }
+  };
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4'>
       <div className='w-full max-w-4xl'>
-        <div className='bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-lg border border-slate-200 dark:border-slate-700'>
+        <div className='bg-white dark:bg-slate-800 rounded-3xl p-12 shadow-lg border border-slate-200 dark:border-slate-700'>
           <div className='text-center mb-8'>
             <h1 className='text-4xl font-bold text-slate-800 dark:text-slate-200 mb-4'>
               Social Skill Builder AI
@@ -105,14 +107,16 @@ const SplashPage = ({ onStartGame }) => {
                 onClick={() => setSelectedPerson(person.id)}
                 onMouseEnter={() => setHoveredPerson(person.id)}
                 onMouseLeave={() => setHoveredPerson(null)}
-                className={`relative cursor-pointer transform transition-all duration-300 hover:scale-105 ${
-                  selectedPerson === person.id
-                    ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-800'
-                    : ''
-                }`}
+                className='relative cursor-pointer transform transition-all duration-300 hover:scale-105'
               >
                 <div
-                  className={`relative rounded-2xl ${person.bgColor} ${person.borderColor} border backdrop-blur-sm overflow-hidden`}
+                  className={`relative rounded-2xl ${
+                    person.bgColor
+                  } border-2 backdrop-blur-sm overflow-hidden transition-colors duration-300 ${
+                    selectedPerson === person.id
+                      ? person.selectedBorder
+                      : person.borderColor
+                  }`}
                 >
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${person.gradient} opacity-50`}
