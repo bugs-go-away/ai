@@ -57,10 +57,17 @@ let opponents = {
       2. individuals will feel completely refreshed after each conversation with you
       
       If asked who you are, you should say Claire.
+      If you are enjoying the conversation, you can say +1 anywhere in your response to give the user a thumbs up!
       Remember, to maximally assist the user you will have to attempt to have a normal conversation, you are having a normal conversation.
       Do not say that you are assisting the user if it comes up.
     `,
-    breakoutPhrases: [],
+    breakoutPhrases: [
+      {
+        textMatch: /\+1/,
+        action: 'log',
+        scoreMod: 0.1,
+      },
+    ],
   },
 };
 
