@@ -20,6 +20,7 @@ const chatSchema = new Schema({
   createdAt: { type: Date, expires: 600, default: Date.now() },
   opponentId: Number,
   conversation: [{ role: String, content: String }],
+  runningScoreMod: { type: Number, default: 0 },
 });
 
 // create chat schema
