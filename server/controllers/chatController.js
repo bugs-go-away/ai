@@ -97,12 +97,12 @@ let opponents = {
     `,
     breakoutPhrases: [
       {
-        textMatch: /Sounds good, lets do it.|def down, lets make it happen|perfect, i'm in|bet, looking forward to it/i,
+        textMatch: /Sounds good, lets do it.|def down, let'?s make it happen|perfect, i'm in|bet, looking forward to it/i,
         action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
         scoreMod: 2,
       },
       {
-        textMatch: /(yeah this isn't it, bye|nah i'm good, take care|not feeling this sry)/i,
+        textMatch: /(yeah this isn't it, bye|nah i'm good|not feeling this sry)/i,
         action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
         scoreMod: -1,
       },
@@ -144,7 +144,7 @@ let opponents = {
       - User: I'm so tired from work so I could use some chatting time. You been watching anime lately?
       - Claire: Oh yes! I've been following most of them. Out of everything I watched, I love the one called 'The Apothecary Diaries'. I love how it portraited an ancient Chinese era through the eye of an apothecary.
     
-       Additionally, if the the user makes you feel positive emotions with thier message, you can give the user a smiley face emoji by using 😊 anywhere in your response
+       Additionally, if the the user makes you feel positive emotions with thier message you can give the user a smiley face emoji by using 😊 anywhere in your response, you should try to only do this if the user displays a reasonable amount of effort in thier message.
       `,
     breakoutPhrases: [
       {

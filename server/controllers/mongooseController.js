@@ -1,4 +1,7 @@
 import { Chat } from '../models/mongooseModel.js';
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export const createChat = async (req, res, next) => {
   let { opponentId, username, password } = req.query;
@@ -11,15 +14,49 @@ export const createChat = async (req, res, next) => {
       message: 'server says: you have to specify an opponentId and username or password',
     });
   }
-  console.log('creating chat session.');
-  let message = await Chat.create({
+
+  console.log('checking for current chat session');
+  let foundMessage = await Chat.findOne({
     username: username,
     password: password,
-    //  start_time: Date.now(),
-    opponentId: opponentId,
   });
-  console.log(` ok, started user sesh and got ${message}`);
-  res.locals.mongoQueryResults = message;
+  console.log({ foundMessage });
+  if (foundMessage == null) {
+    console.log('creating chat session.');
+    // await wait(15000);
+    let message = await Chat.create({
+      username: username,
+      password: password,
+      opponentId: opponentId,
+      runningScoreMod: 0,
+    });
+
+    console.log(` ok, started user sesh and got ${message}`);
+    // await wait(15000);
+    console.log(message);
+    res.locals.mongoQueryResults = message;
+  } else {
+    let updateMessage = await Chat.findOneAndUpdate(
+      {
+        username: username,
+        password: password,
+      },
+      {
+        username: username,
+        password: password,
+        opponentId: opponentId,
+        createdAt: Date.now(),
+        conversation: foundMessage.opponentId == opponentId ? foundMessage.conversation : [],
+      },
+      { new: true }
+    );
+
+    res.locals.chatHistory = updateMessage.conversation.map((obj) => {
+      return { role: obj.role, content: obj.content };
+    });
+    console.log('updated');
+    console.log(updateMessage);
+  }
   return next();
 };
 

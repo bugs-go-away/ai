@@ -69,6 +69,7 @@ export const checkEndGame = async (req, res, next) => {
     } else if (intScore > 10) {
       intScore = 10;
     }
+    console.log({ finalScore: intScore });
     res.locals.userScore = intScore; // set it
     res.locals.didEnd = true; // ur done.
     if (finalChatState.length > MAX_MESSAGES) {
@@ -79,7 +80,7 @@ export const checkEndGame = async (req, res, next) => {
       res.locals.endReason = 'Unknown end reason';
     }
     res.locals.chatFeedback = feedback;
-    console.log({ score });
+
     next();
   } else {
     return next();
@@ -103,7 +104,7 @@ const scoreConversation = async (finalChatState) => {
 
     Be honest with your score, brutally honest if needed.
 
-    Only share your rank from a range one out of ten, using whole numbers.
+    Only share your rank from a range one out of ten, using numbers.
 
     Your score will be shown to the audience, and so you should only output a number 1 to 10. No addition words are needed.
 
@@ -150,7 +151,7 @@ export const giveFeedback = async (finalChatState) => {
 
     Each paragraph should be less than 50 words.
     
-    Only give feedback on 'user''s comments, and not on what the recipient says, but you could draw information to how well the recipient responds to the user          
+    Only give feedback on user's comments, and not on what the recipient says, but you could draw information to how well the recipient responds to the user.
   `;
 
   try {
