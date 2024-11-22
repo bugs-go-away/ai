@@ -1,6 +1,13 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
+
 dotenv.config();
 
 let openAIAPIKEY = process.env.OPENAI_API_KEY;
@@ -97,7 +104,7 @@ let opponents = {
     `,
     breakoutPhrases: [
       {
-        textMatch: /Sounds good,? lets do it.?|def down, let'?s make it happen|perfect, i'm in|bet, looking forward to it/i,
+        textMatch: /Sounds good,? let'?s do it.?|def down, let'?s make it happen|perfect, i'm in|bet, looking forward to it/i,
         action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
         scoreMod: 2,
       },
@@ -237,6 +244,23 @@ export const receiveAIMessage = async (req, res, next) => {
       ],
     });
 
+    fs.appendFileSync(
+      path.join(__dirname, '../../db/logs.txt'),
+      ` >>>>>>>>>> LOG ${new Date()}>>>>>>>>>>>>>
+      username   >>> ${username}
+      chat state >>> ${currentChatState}
+      prompt     >>> ${newestMessage}
+
+      response   >>> ${completion.choices[0].message.content}
+>>>>>>>>>>>> END >>>>>>>>>>>>>
+
+
+
+      `,
+      () => {
+        console.log('wrote to file asynchronouesly withought awaiting, this logs timestam is important.');
+      }
+    );
     res.locals.aiMessage = completion.choices[0].message;
     let breakoutResponses = await checkBreakout(completion.choices[0].message.content, opponentId);
     res.locals.aiMessage.content = breakoutResponses.newAiMessage;
