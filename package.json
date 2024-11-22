@@ -11,10 +11,25 @@
     "server": "nodemon server/index.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
+    "@mui/icons-material": "^6.1.8",
+    "@mui/material": "^6.1.8",
+    "@mui/styled-engine-sc": "^6.1.8",
+    "@mui/x-data-grid": "^7.22.2",
     "lucide-react": "^0.344.0",
+    "mongodb": "^6.10.0",
+    "mongoose": "^8.8.2",
     "nodemon": "^3.1.7",
+    "openai": "^4.73.0",
+    "pinecone": "^0.1.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "styled-components": "^6.1.13",
+    "react-hot-toast": "^2.4.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
