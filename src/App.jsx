@@ -9,11 +9,14 @@ function App() {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleStartGame = (name, password, person) => {
+  const handleStartGame = (name, password, person, restoredHistory) => {
     setUserName(name);
     setPassword(password);
     setSelectedPerson(person);
     setGameStarted(true);
+    if (restoredHistory) {
+      console.log(restoredHistory);
+    }
   };
 
   const resetGame = () => {

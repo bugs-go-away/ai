@@ -85,7 +85,7 @@ const SplashPage = ({ onStartGame }) => {
         if (response.ok) {
           const data = await response.json();
           console.log('Chat Initialized: ', data);
-          onStartGame(userName, password, selected);
+          onStartGame(userName, password, selected, data.restoredHistory);
         } else {
           alert('Failed to initialize chat');
         }
