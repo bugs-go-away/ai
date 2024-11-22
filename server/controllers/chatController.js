@@ -102,7 +102,7 @@ let opponents = {
         scoreMod: 2,
       },
       {
-        textMatch: /(yeah this isn't it, bye|nah i'm good, take care|not feeling this sry)/i,
+        textMatch: /(yeah this isn't it, bye|nah i'm good|not feeling this sry)/i,
         action: 'end', // end, log -> dosent end the conversation but does add the bonus penalty.
         scoreMod: -1,
       },
