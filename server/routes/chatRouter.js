@@ -9,7 +9,7 @@ import { checkEndGame } from '../controllers/scoringController.js';
 const router = express.Router();
 
 router.post('/init', createChat, (_req, res, _next) => {
-  res.status(200).json({ ok: true });
+  res.status(200).json({ ok: true, restoredHistory: res.locals.chatHistory && res.locals.chatHistory.length > 0 ? res.locals.chatHistory : null });
 });
 
 //    none -> GETCHATDATA -> res.locals.currentChatState
