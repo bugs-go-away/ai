@@ -5,6 +5,7 @@ const SplashPage = ({ onStartGame }) => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [hoveredPerson, setHoveredPerson] = useState(null);
   const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
 
   const people = [
     {
@@ -71,10 +72,10 @@ const SplashPage = ({ onStartGame }) => {
   ];
 
   const handleStartGame = async () => {
-    if (userName && selectedPerson !== null) {
+    if (userName && password && selectedPerson !== null) {
       const selected = people.find((person) => person.id === selectedPerson);
       try {
-        const response = await fetch(`http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}`, {
+        const response = await fetch(`http://localhost:3000/chat/init?opponentId=${selected.id}&username=${userName}&password=${password}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -84,7 +85,7 @@ const SplashPage = ({ onStartGame }) => {
         if (response.ok) {
           const data = await response.json();
           console.log('Chat Initialized: ', data);
-          onStartGame(userName, selected);
+          onStartGame(userName, password, selected);
         } else {
           alert('Failed to initialize chat');
         }
@@ -152,9 +153,16 @@ const SplashPage = ({ onStartGame }) => {
               onChange={(e) => setUserName(e.target.value)}
               className='w-full sm:w-64 px-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder-slate-400'
             />
+            <input
+              type='text'
+              placeholder='Enter a password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className='w-full sm:w-64 px-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder-slate-400'
+            />
             <button
               onClick={handleStartGame}
-              disabled={!userName || selectedPerson === null}
+              disabled={!userName || !password || selectedPerson === null}
               className='group w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-xl shadow-lg shadow-blue-500/20 disabled:shadow-none transition-all duration-200 flex items-center justify-center gap-2 font-medium'
             >
               Start Conversation

@@ -12,12 +12,8 @@ const CalculatingScore = () => {
           <div className='absolute inset-0 bg-blue-500/20 animate-ping rounded-full' />
           <Loader2 className='w-12 h-12 text-blue-500 animate-spin' />
         </div>
-        <h2 className='text-2xl font-bold text-slate-800 dark:text-slate-200'>
-          Calculating Score
-        </h2>
-        <p className='text-slate-600 dark:text-slate-400 text-center'>
-          Analyzing your conversation and preparing feedback...
-        </p>
+        <h2 className='text-2xl font-bold text-slate-800 dark:text-slate-200'>Calculating Score</h2>
+        <p className='text-slate-600 dark:text-slate-400 text-center'>Analyzing your conversation and preparing feedback...</p>
       </div>
     </div>
   );
@@ -26,11 +22,7 @@ const CalculatingScore = () => {
 const TypingIndicator = ({ opponent }) => (
   <div className='flex items-end space-x-2 justify-start'>
     <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
-      <img
-        src={opponent?.profileImage || `/default.png`}
-        alt={opponent?.name}
-        className='w-full h-full object-cover'
-      />
+      <img src={opponent?.profileImage || `/default.png`} alt={opponent?.name} className='w-full h-full object-cover' />
     </div>
     <div className='rounded-2xl px-4 py-3 bg-slate-100 dark:bg-slate-700 rounded-bl-none'>
       <div className='flex space-x-1 items-center min-h-[1.25rem]'>
@@ -53,27 +45,15 @@ const Message = ({ message, opponent }) => {
   const isUser = message.sender === 'user';
 
   return (
-    <div
-      className={`flex items-end space-x-2 ${
-        isUser ? 'justify-end' : 'justify-start'
-      }`}
-    >
+    <div className={`flex items-end space-x-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
         <div className='flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700'>
-          <img
-            src={opponent?.profileImage || `/default.png`}
-            alt={opponent?.name}
-            className='w-full h-full object-cover'
-          />
+          <img src={opponent?.profileImage || `/default.png`} alt={opponent?.name} className='w-full h-full object-cover' />
         </div>
       )}
       <div
         className={`rounded-2xl px-4 py-2 max-w-[80%] transition-all duration-200 ${
-          isUser
-            ? 'bg-blue-600 text-white rounded-br-none'
-            : message.sender === 'system'
-            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
-            : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
+          isUser ? 'bg-blue-600 text-white rounded-br-none' : message.sender === 'system' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none'
         }`}
       >
         <p className='text-sm leading-relaxed'>{message.text}</p>
@@ -82,7 +62,7 @@ const Message = ({ message, opponent }) => {
   );
 };
 
-const ChatContainer = ({ username, opponent, onReset }) => {
+const ChatContainer = ({ username, password, opponent, onReset }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -108,11 +88,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
       setGameScore({
         score: score,
         feedback: `This is a test feedback message for score ${score}. ${
-          score >= 8
-            ? 'Excellent work!'
-            : score >= 6
-            ? 'Good effort!'
-            : 'Keep practicing!'
+          score >= 8 ? 'Excellent work!' : score >= 6 ? 'Good effort!' : 'Keep practicing!'
         } This is additional feedback text to test how longer feedback messages appear in the scoring overlay.`,
       });
       setIsCalculatingScore(false);
@@ -121,16 +97,13 @@ const ChatContainer = ({ username, opponent, onReset }) => {
 
   const sendMessageToServer = async (messageData) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/chat/message?username=${username}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(messageData),
-        }
-      );
+      const response = await fetch(`http://localhost:3000/chat/message?username=${username}&password=${password}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(messageData),
+      });
 
       if (!response.ok) {
         throw new Error('Failed to send message');
@@ -189,10 +162,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         ]);
 
         // Check if game should end
-        if (
-          serverResponse.endMessage.didEnd ||
-          userMessageCount.current === 6
-        ) {
+        if (serverResponse.endMessage.didEnd || userMessageCount.current === 6) {
           // Add delay before showing the game ended state
           setTimeout(() => {
             setGameEnded(true);
@@ -202,8 +172,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
             setTimeout(() => {
               setGameScore({
                 score: serverResponse.endMessage.score || 0,
-                feedback:
-                  serverResponse.endMessage.feedback || 'Game completed!',
+                feedback: serverResponse.endMessage.feedback || 'Game completed!',
               });
               setIsCalculatingScore(false);
             }, 1000); // Delay showing score by 1 second
@@ -211,7 +180,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
         }
       }
     }
-  }, [inputMessage, username]);
+  }, [inputMessage, username, password]);
 
   const handleKeyPress = useCallback(
     (e) => {
@@ -243,10 +212,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
           </h2>
         )}
 
-        <button
-          onClick={() => setIsTestMode(!isTestMode)}
-          className='mt-2 inline-flex items-center gap-2 px-3 py-1 text-sm bg-slate-200 dark:bg-slate-700 rounded-full hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors'
-        >
+        <button onClick={() => setIsTestMode(!isTestMode)} className='mt-2 inline-flex items-center gap-2 px-3 py-1 text-sm bg-slate-200 dark:bg-slate-700 rounded-full hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors'>
           <Beaker size={16} />
           {isTestMode ? 'Hide Test Panel' : 'Show Test Panel'}
         </button>
@@ -255,28 +221,16 @@ const ChatContainer = ({ username, opponent, onReset }) => {
       {isTestMode && (
         <div className='mb-4 p-4 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700'>
           <div className='flex gap-2 flex-wrap'>
-            <button
-              onClick={() => testScore(9.5)}
-              className='px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600'
-            >
+            <button onClick={() => testScore(9.5)} className='px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600'>
               Test High Score (9.5)
             </button>
-            <button
-              onClick={() => testScore(7.5)}
-              className='px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600'
-            >
+            <button onClick={() => testScore(7.5)} className='px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600'>
               Test Medium Score (7.5)
             </button>
-            <button
-              onClick={() => testScore(4.5)}
-              className='px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600'
-            >
+            <button onClick={() => testScore(4.5)} className='px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600'>
               Test Low Score (4.5)
             </button>
-            <button
-              onClick={resetGame}
-              className='px-3 py-1 bg-slate-500 text-white rounded-lg hover:bg-slate-600'
-            >
+            <button onClick={resetGame} className='px-3 py-1 bg-slate-500 text-white rounded-lg hover:bg-slate-600'>
               Reset Game
             </button>
           </div>
@@ -290,11 +244,7 @@ const ChatContainer = ({ username, opponent, onReset }) => {
               <CalculatingScore />
             ) : (
               <div className='w-full max-w-3xl mx-4'>
-                <ScoreContainer
-                  score={gameScore.score}
-                  feedback={gameScore.feedback}
-                  onNewConversation={onReset}
-                />
+                <ScoreContainer score={gameScore.score} feedback={gameScore.feedback} onNewConversation={onReset} />
               </div>
             )}
           </div>
