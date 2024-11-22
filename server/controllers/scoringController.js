@@ -55,8 +55,7 @@ export const checkEndGame = async (req, res, next) => {
 
     if (userWordCount < totalUserMessages * TARGET_USER_WORD_COUNT_PER_MESSAGE) {
       intScore -= 1;
-    }
-    if (userWordCount > totalUserMessages * BONUS_WORD_COUNT_SCORE_BENCHMARK) {
+    } else if (userWordCount > totalUserMessages * BONUS_WORD_COUNT_SCORE_BENCHMARK) {
       intScore += 1;
     }
 
