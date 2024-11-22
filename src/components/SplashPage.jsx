@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowRight, Users, MessageSquare, Coffee } from 'lucide-react';
+import {
+  ArrowRight,
+  Users,
+  MessageSquare,
+  Coffee,
+  HelpCircle,
+} from 'lucide-react';
 
 const SplashPage = ({ onStartGame }) => {
   const [selectedPerson, setSelectedPerson] = useState(null);
@@ -32,7 +38,7 @@ const SplashPage = ({ onStartGame }) => {
       mbti: 'ENTJ',
       hobbies: 'reading, rock climbing and a big foodie',
       funfact:
-        'Once met Alex Honnold at a climbing gym. For those who don’t know, Alex is one of the best rock climbers in the world and climbed El Capitan in Yosemite without any ropes!',
+        'Once met Alex Honnold at a climbing gym. For those who dont know, Alex is one of the best rock climbers in the world and climbed El Capitan in Yosemite without any ropes!',
       icon: <MessageSquare className='w-6 h-6' />,
       gradient: 'from-rose-500/20 to-transparent',
       color: 'text-rose-500',
@@ -55,6 +61,21 @@ const SplashPage = ({ onStartGame }) => {
       borderColor: 'border-green-200 dark:border-green-800',
       bgColor: 'bg-green-50 dark:bg-green-900/10',
       selectedBorder: 'border-green-500',
+    },
+    {
+      id: 4,
+      name: 'Unknown',
+      type: 'Mystery',
+      bio: 'Choose this option for a surprise conversation partner. Who knows what interesting discussion awaits?',
+      mbti: '????',
+      hobbies: 'To be revealed',
+      funfact: 'Every conversation is a new adventure',
+      icon: <HelpCircle className='w-6 h-6' />,
+      gradient: 'from-slate-500/20 to-transparent',
+      color: 'text-slate-500',
+      borderColor: 'border-slate-200 dark:border-slate-700',
+      bgColor: 'bg-slate-50 dark:bg-slate-900/10',
+      selectedBorder: 'border-slate-500',
     },
   ];
 
@@ -88,13 +109,19 @@ const SplashPage = ({ onStartGame }) => {
     }
   };
 
+  // Split people array into chunks of 2 for the grid
+  const rows = [];
+  for (let i = 0; i < people.length; i += 2) {
+    rows.push(people.slice(i, i + 2));
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4'>
       <div className='w-full max-w-4xl'>
         <div className='bg-white dark:bg-slate-800 rounded-3xl p-12 shadow-lg border border-slate-200 dark:border-slate-700'>
           <div className='text-center mb-8'>
             <h1 className='text-4xl font-bold text-slate-800 dark:text-slate-200 mb-4'>
-              Social Skill Builder AI
+              Yap
             </h1>
             <p className='text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto'>
               Practice your conversation skills in different social contexts.
@@ -103,60 +130,69 @@ const SplashPage = ({ onStartGame }) => {
             </p>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-            {people.map((person) => (
+          <div className='space-y-6 mb-8'>
+            {rows.map((row, rowIndex) => (
               <div
-                key={person.id}
-                onClick={() => setSelectedPerson(person.id)}
-                onMouseEnter={() => setHoveredPerson(person.id)}
-                onMouseLeave={() => setHoveredPerson(null)}
-                className='relative cursor-pointer transform transition-all duration-300 hover:scale-105'
+                key={rowIndex}
+                className='grid grid-cols-1 md:grid-cols-2 gap-6'
               >
-                <div
-                  className={`relative rounded-2xl ${
-                    person.bgColor
-                  } border-2 backdrop-blur-sm overflow-hidden transition-colors duration-300 ${
-                    selectedPerson === person.id
-                      ? person.selectedBorder
-                      : person.borderColor
-                  }`}
-                >
+                {row.map((person) => (
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${person.gradient} opacity-50`}
-                  />
-                  <div className='relative p-6'>
+                    key={person.id}
+                    onClick={() => setSelectedPerson(person.id)}
+                    onMouseEnter={() => setHoveredPerson(person.id)}
+                    onMouseLeave={() => setHoveredPerson(null)}
+                    className='relative cursor-pointer transform transition-all duration-300 hover:scale-105'
+                  >
                     <div
-                      className={`${
-                        hoveredPerson === person.id ? 'scale-0' : 'scale-100'
-                      } transform transition-transform duration-300`}
+                      className={`relative rounded-2xl ${
+                        person.bgColor
+                      } border-2 backdrop-blur-sm overflow-hidden transition-colors duration-300 ${
+                        selectedPerson === person.id
+                          ? person.selectedBorder
+                          : person.borderColor
+                      }`}
                     >
-                      <div className='flex flex-col items-center'>
-                        <div className={`mb-4 ${person.color}`}>
-                          {person.icon}
-                        </div>
-                        <h3 className='text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2'>
-                          {person.name}
-                        </h3>
-                        <p
-                          className={`text-sm font-medium ${person.color} uppercase tracking-wide`}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br ${person.gradient} opacity-50`}
+                      />
+                      <div className='relative p-6'>
+                        <div
+                          className={`${
+                            hoveredPerson === person.id
+                              ? 'scale-0'
+                              : 'scale-100'
+                          } transform transition-transform duration-300`}
                         >
-                          {person.type}
-                        </p>
+                          <div className='flex flex-col items-center'>
+                            <div className={`mb-4 ${person.color}`}>
+                              {person.icon}
+                            </div>
+                            <h3 className='text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2'>
+                              {person.name}
+                            </h3>
+                            <p
+                              className={`text-sm font-medium ${person.color} uppercase tracking-wide`}
+                            >
+                              {person.type}
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          className={`absolute inset-0 p-10 flex items-center justify-center ${
+                            hoveredPerson === person.id
+                              ? 'scale-100 opacity-100'
+                              : 'scale-95 opacity-0'
+                          } transform transition-all duration-300`}
+                        >
+                          <p className='text-md text-slate-600 dark:text-slate-300'>
+                            {person.bio}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div
-                      className={`absolute inset-0 p-6 flex items-center justify-center ${
-                        hoveredPerson === person.id
-                          ? 'scale-100 opacity-100'
-                          : 'scale-95 opacity-0'
-                      } transform transition-all duration-300`}
-                    >
-                      <p className='text-sm text-slate-600 dark:text-slate-300'>
-                        {person.bio}
-                      </p>
-                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             ))}
           </div>
