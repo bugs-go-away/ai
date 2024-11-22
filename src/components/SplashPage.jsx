@@ -154,7 +154,7 @@ const SplashPage = ({ onStartGame }) => {
               className='w-full sm:w-64 px-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder-slate-400'
             />
             <input
-              type='text'
+              type='password'
               placeholder='Enter a password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
