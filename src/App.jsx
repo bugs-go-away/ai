@@ -7,9 +7,11 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleStartGame = (name, person) => {
+  const handleStartGame = (name, password, person) => {
     setUserName(name);
+    setPassword(password);
     setSelectedPerson(person);
     setGameStarted(true);
   };
@@ -18,20 +20,13 @@ function App() {
     setGameStarted(false);
     setSelectedPerson(null);
     setUserName('');
+    setPassword('');
   };
 
   return (
     <>
       <ResponsiveAppBar selectedPerson={selectedPerson} />
-      {!gameStarted ? (
-        <SplashPage onStartGame={handleStartGame} />
-      ) : (
-        <ChatContainer
-          username={userName}
-          opponent={selectedPerson}
-          onReset={resetGame}
-        />
-      )}
+      {!gameStarted ? <SplashPage onStartGame={handleStartGame} /> : <ChatContainer username={userName} password={password} opponent={selectedPerson} onReset={resetGame} />}
     </>
   );
 }
